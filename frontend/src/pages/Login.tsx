@@ -56,14 +56,12 @@ const Login: React.FC = () => {
           >
             {/* Logo + título */}
             <div className="flex flex-col items-center mb-8">
-              <div className="w-20 h-20 mb-4 rounded-full overflow-hidden shadow-lg border-2 border-primary-500 flex items-center justify-center bg-white">
-                <img
-                  src="/assets/tortas/logo.png"
-                  alt="Logo CamilasBakery"
-                  className="object-contain w-full h-full"
-                />
-              </div>
-              <h1 className="text-3xl font-bold text-primary-400 text-center">
+              <img
+                src="/assets/tortas/logo.png"
+                alt="Logo CamilasBakery"
+                className="w-60 h-60 mb-4 rounded-full shadow-xl"
+              />
+              <h1 className="text-4xl font-bold text-primary-400 text-center">
                 Camilas'<span className="text-primary-600">Bakery</span>
               </h1>
             </div>

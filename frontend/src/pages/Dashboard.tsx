@@ -30,13 +30,13 @@ const Dashboard: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto py-10 px-4">
       {/* Header */}
-      <div className="mb-10 flex items-center gap-4">
+      <div className="mb-10 flex items-center gap-2">
         <img
           src="/assets/tortas/logo.png"
           alt="Logo"
-          className="w-40 h-40 rounded-full border-2 border-primary-500"
+          className="w-80 h-80"
         />
-        <h1 className="text-3xl font-bold text-primary-400 tracking-tight">
+        <h1 className="text-4xl font-bold text-primary-400 tracking-tight">
           Bienvenido a{" "}
           <span className="text-primary-600">CamilasBakery</span>
         </h1>
