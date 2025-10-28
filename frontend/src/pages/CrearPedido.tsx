@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Save, Plus, Trash2, Edit } from 'lucide-react';
-import PopupSeleccionarProducto from '@/components/pedidos/PopupSeleccionarProducto';
-import PopupAgregarExtras from '@/components/pedidos/PopupAgregarExtras';
-import PopupAgregarIngredientesExtras from '@/components/pedidos/PopupAgregarIngredientesExtras';
 import { useCrearPedido } from '@/hooks/usePedidos';
 import { CrearPedidoDTO } from '@/types/pedidos';
+
+// ✅ Lazy load de popups (solo se cargan cuando se abren)
+const PopupSeleccionarProducto = lazy(() => import('@/components/pedidos/PopupSeleccionarProducto'));
+const PopupAgregarExtras = lazy(() => import('@/components/pedidos/PopupAgregarExtras'));
+const PopupAgregarIngredientesExtras = lazy(() => import('@/components/pedidos/PopupAgregarIngredientesExtras'));
 
 interface Extra {
   idCostoExtra: number;
@@ -125,21 +127,21 @@ const CrearPedido: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <div className="max-w-7xl mx-auto p-4 sm:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-3 sm:gap-4">
           <button
             onClick={() => navigate('/pedidos')}
-            className="p-2 hover:bg-primary-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-primary-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
-            <ArrowLeft className="w-6 h-6 text-primary-700" />
+            <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-primary-700 dark:text-primary-400" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-primary-900">
+            <h1 className="text-xl sm:text-2xl font-bold text-primary-900 dark:text-white">
               Crear Nuevo Pedido
             </h1>
-            <p className="text-sm text-primary-600">
+            <p className="text-xs sm:text-sm text-primary-600 dark:text-gray-400">
               Complete la información del pedido
             </p>
           </div>
@@ -147,9 +149,9 @@ const CrearPedido: React.FC = () => {
         <button
           onClick={handleSubmit}
           disabled={crearPedidoMutation.isPending}
-          className="flex items-center gap-2 bg-primary-500 text-white px-6 py-3 rounded-lg shadow hover:bg-primary-600 transition disabled:bg-primary-300 disabled:cursor-not-allowed"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow hover:bg-primary-600 transition disabled:bg-primary-300 disabled:cursor-not-allowed text-sm sm:text-base"
         >
-          <Save className="w-5 h-5" />
+          <Save className="w-4 h-4 sm:w-5 sm:h-5" />
           {crearPedidoMutation.isPending ? 'Guardando...' : 'Guardar Pedido'}
         </button>
       </div>
@@ -159,7 +161,7 @@ const CrearPedido: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-4"
+          className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 space-y-4"
         >
           {/* Información del Cliente y Detalles en dos columnas */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -375,33 +377,45 @@ const CrearPedido: React.FC = () => {
       </form>
 
       {/* Popup Seleccionar Producto */}
-      <PopupSeleccionarProducto
-        isOpen={popupProductoOpen}
-        onClose={() => setPopupProductoOpen(false)}
-        onSelect={handleAgregarProducto}
-      />
+      {popupProductoOpen && (
+        <Suspense fallback={<div className="fixed inset-0 bg-black bg-opacity-40 z-50" />}>
+          <PopupSeleccionarProducto
+            isOpen={popupProductoOpen}
+            onClose={() => setPopupProductoOpen(false)}
+            onSelect={handleAgregarProducto}
+          />
+        </Suspense>
+      )}
 
       {/* Popup Agregar Extras */}
-      <PopupAgregarExtras
-        isOpen={popupExtrasOpen}
-        onClose={() => {
-          setPopupExtrasOpen(false);
-          setProductoEditandoIndex(null);
-        }}
-        onSave={handleGuardarExtras}
-        extrasActuales={productoEditandoIndex !== null ? productos[productoEditandoIndex].extras : []}
-      />
+      {popupExtrasOpen && (
+        <Suspense fallback={<div className="fixed inset-0 bg-black bg-opacity-40 z-50" />}>
+          <PopupAgregarExtras
+            isOpen={popupExtrasOpen}
+            onClose={() => {
+              setPopupExtrasOpen(false);
+              setProductoEditandoIndex(null);
+            }}
+            onSave={handleGuardarExtras}
+            extrasActuales={productoEditandoIndex !== null ? productos[productoEditandoIndex].extras : []}
+          />
+        </Suspense>
+      )}
 
       {/* Popup Agregar Ingredientes Extras */}
-      <PopupAgregarIngredientesExtras
-        isOpen={popupIngredientesOpen}
-        onClose={() => {
-          setPopupIngredientesOpen(false);
-          setProductoEditandoIndex(null);
-        }}
-        onSave={handleGuardarIngredientes}
-        ingredientesActuales={productoEditandoIndex !== null ? productos[productoEditandoIndex].ingredientesExtras : []}
-      />
+      {popupIngredientesOpen && (
+        <Suspense fallback={<div className="fixed inset-0 bg-black bg-opacity-40 z-50" />}>
+          <PopupAgregarIngredientesExtras
+            isOpen={popupIngredientesOpen}
+            onClose={() => {
+              setPopupIngredientesOpen(false);
+              setProductoEditandoIndex(null);
+            }}
+            onSave={handleGuardarIngredientes}
+            ingredientesActuales={productoEditandoIndex !== null ? productos[productoEditandoIndex].ingredientesExtras : []}
+          />
+        </Suspense>
+      )}
     </div>
   );
 };

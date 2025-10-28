@@ -3,6 +3,7 @@ import {
   actualizarEstadoPedido,
   actualizarPedidoEncabezado,
 } from "../api/pedidos";
+import { PagedResult, PedidoResumen } from "../types/pedidos";
 
 export const useUpdatePedido = () => {
   const queryClient = useQueryClient();
@@ -39,14 +40,56 @@ export const useUpdatePedido = () => {
       await actualizarPedidoEncabezado(id, body);
     },
 
-    // 🔄 Refresca pedidos y métricas del dashboard
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pedidos"] });
-      queryClient.invalidateQueries({ queryKey: ["dashboardMetrics"] });
+    // ✅ Actualización optimista (UI instantánea)
+    onMutate: async (pedidoActualizado) => {
+      // Cancela cualquier refetch en curso
+      await queryClient.cancelQueries({ queryKey: ['pedidos'] });
+
+      // Guarda snapshot del estado anterior para rollback
+      const previousQueries = queryClient.getQueriesData({ queryKey: ['pedidos'] });
+
+      // Actualiza la cache optimistamente para todas las páginas
+      queryClient.setQueriesData<PagedResult<PedidoResumen>>(
+        { queryKey: ['pedidos'] },
+        (oldData) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            items: oldData.items.map((p) =>
+              p.idPedido === pedidoActualizado.idPedido
+                ? { 
+                    ...p, 
+                    fecha: pedidoActualizado.fecha ?? p.fecha,
+                    estado: pedidoActualizado.estado ?? p.estado,
+                    metodoDePago: pedidoActualizado.metodoDePago ?? p.metodoDePago,
+                  }
+                : p
+            ),
+          };
+        }
+      );
+
+      // Retorna el snapshot para rollback si falla
+      return { previousQueries };
     },
 
-    onError: (error) => {
-      console.error("❌ Error al actualizar pedido:", error);
+    // ❌ Revierte cambios si falla
+    onError: (err, pedido, context) => {
+      console.error("❌ Error al actualizar pedido:", err);
+      
+      if (context?.previousQueries) {
+        // Restaura el estado anterior
+        context.previousQueries.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+    },
+
+    // 🔄 Siempre refresca después para sincronizar con el servidor
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["pedidos"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardMetrics"] });
     },
   });
 };

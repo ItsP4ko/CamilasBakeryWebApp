@@ -28,22 +28,22 @@ const Dashboard: React.FC = () => {
   const error = dashboardError || ingError;
 
   return (
-    <div className="max-w-7xl mx-auto py-10 px-4">
+    <div className="max-w-7xl mx-auto py-6 sm:py-10 px-4">
       {/* Header */}
-      <div className="mb-10 flex items-center gap-2">
+      <div className="mb-8 sm:mb-10 flex flex-col sm:flex-row items-center gap-4 sm:gap-2">
         <img
           src="/assets/tortas/logo.png"
           alt="Logo"
-          className="w-80 h-80"
+          className="w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80"
         />
-        <h1 className="text-4xl font-bold text-primary-400 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary-400 tracking-tight text-center sm:text-left">
           Bienvenido a{" "}
           <span className="text-primary-600">CamilasBakery</span>
         </h1>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
         <StatsCard
           label="Productos en el catalogo"
           value={isLoading ? "..." : tortasCount}

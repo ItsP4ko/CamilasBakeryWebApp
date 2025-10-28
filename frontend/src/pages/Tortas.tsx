@@ -40,11 +40,11 @@ const Tortas: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-10 px-6">
+    <div className="max-w-7xl mx-auto py-6 sm:py-10 px-4 sm:px-6">
       {/* Header */}
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">Catálogo de Tortas</h1>
-        <p className="text-gray-600 dark:text-gray-400">Gestión de tortas y precios</p>
+      <div className="mb-6 sm:mb-8 text-center">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">Catálogo de Tortas</h1>
+        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Gestión de tortas y precios</p>
       </div>
 
       {/* Search Bar con botones integrados */}
@@ -88,7 +88,7 @@ const Tortas: React.FC = () => {
           No se encontraron tortas con "{searchTerm}"
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 items-start">
           {filteredData.map((torta) => (
             <TortaCard
               key={torta.IdTorta}

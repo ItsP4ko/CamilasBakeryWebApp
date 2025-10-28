@@ -61,6 +61,15 @@ export interface Extra {
     metodoDePago: string,
     estado: string;
   }
+
+  // Tipo para respuesta paginada
+  export interface PagedResult<T> {
+    items: T[];
+    totalCount: number;
+    pageNumber: number;
+    pageSize: number;
+    totalPages: number;
+  }
   
   export interface CrearPedidoDTO {
     idCliente: number;

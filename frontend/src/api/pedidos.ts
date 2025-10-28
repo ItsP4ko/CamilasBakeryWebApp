@@ -1,6 +1,6 @@
 // src/api/pedidos.ts
 import api from './http';
-import { ActualizarPedidoDTO, CrearPedidoDTO, Pedido, PedidoResumen, TotalVentasFecha } from '../types/pedidos';
+import { ActualizarPedidoDTO, CrearPedidoDTO, PagedResult, Pedido, PedidoResumen, TotalVentasFecha } from '../types/pedidos';
 
 // Helper function para mapear datos del backend
 const mapPedidoFromBackend = (data: any): Pedido => ({
@@ -49,19 +49,36 @@ const mapPedidoFromBackend = (data: any): Pedido => ({
   })),
 });
 
-// Obtener todos los pedidos (resumen)
-export const getPedidos = async (): Promise<PedidoResumen[]> => {
-  const response = await api.get('/api/Pedidos');
-  const pedidosArray = Array.isArray(response.data) ? response.data : [];
-
-  return pedidosArray.map((pedido: any) => ({
-    idPedido: pedido.IdPedido,
-    nombreCliente: pedido.NombreCliente,
-    fecha: pedido.Fecha,
-    total: pedido.Total,
-    metodoDePago: pedido.MetodoDePago,
-    estado: pedido.Estado,
-  }));
+// Obtener todos los pedidos (resumen) con paginación
+export const getPedidos = async (pageNumber: number = 1, pageSize: number = 100): Promise<PagedResult<PedidoResumen>> => {
+  const response = await api.get(`/api/Pedidos?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+  
+  // El backend puede devolver con PascalCase o camelCase
+  const pagedData: any = response.data;
+  
+  // Obtener items con ambos formatos posibles
+  const itemsArray = pagedData.items || pagedData.Items || [];
+  const totalCount = pagedData.totalCount || pagedData.TotalCount || 0;
+  const currentPageNumber = pagedData.pageNumber || pagedData.PageNumber || pageNumber;
+  const currentPageSize = pagedData.pageSize || pagedData.PageSize || pageSize;
+  
+  // Calcular totalPages si no viene del backend
+  const totalPages = pagedData.totalPages || pagedData.TotalPages || Math.ceil(totalCount / currentPageSize);
+  
+  return {
+    items: itemsArray.map((pedido: any) => ({
+      idPedido: pedido.IdPedido || pedido.idPedido,
+      nombreCliente: pedido.NombreCliente || pedido.nombreCliente,
+      fecha: pedido.Fecha || pedido.fecha,
+      total: pedido.Total || pedido.total,
+      metodoDePago: pedido.MetodoDePago || pedido.metodoDePago,
+      estado: pedido.Estado || pedido.estado,
+    })),
+    totalCount: totalCount,
+    pageNumber: currentPageNumber,
+    pageSize: currentPageSize,
+    totalPages: totalPages,
+  };
 };
 
 // Obtener pedido por ID
