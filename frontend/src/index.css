@@ -8,6 +8,13 @@
 @layer base {
   html {
     font-family: 'Inter', system-ui, sans-serif;
+    /* Reducir todo al 75% como zoom out */
+    font-size: 12px; 
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    zoom: 0.75; /* Aplica zoom al 75% a todo el contenido */
   }
 
   :root {
@@ -93,10 +100,6 @@
 
   * {
     @apply border-border;
-  }
-  
-  body {
-    @apply bg-background text-foreground;
   }
 }
 
