@@ -445,9 +445,20 @@ const ModificarMedida: React.FC = () => {
                 const formData = new FormData(e.currentTarget);
                 handleUpdateIngrediente({
                   cantidad: formData.get('cantidad') as string,
-                  unidad: formData.get('unidad') as string,
+                  unidad: ingredienteSeleccionado.UnidadUsada,
                 });
               }} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-primary-700 mb-2">
+                    Ingrediente
+                  </label>
+                  <input
+                    type="text"
+                    value={ingredienteSeleccionado.NombreIngrediente}
+                    disabled
+                    className="w-full px-4 py-2 bg-gray-100 text-gray-600 border border-primary-300 rounded-lg"
+                  />
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-primary-700 mb-2">
                     Cantidad
@@ -456,9 +467,10 @@ const ModificarMedida: React.FC = () => {
                     name="cantidad"
                     type="number"
                     step="0.01"
+                    min="0.01"
                     defaultValue={ingredienteSeleccionado.CantidadUsada}
                     required
-                    className="w-full px-4 py-2 border border-primary-300 rounded-lg"
+                    className="w-full px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -466,11 +478,10 @@ const ModificarMedida: React.FC = () => {
                     Unidad
                   </label>
                   <input
-                    name="unidad"
                     type="text"
                     value={ingredienteSeleccionado.UnidadUsada}
                     disabled
-                    className="w-full px-4 py-2 bg-primary-100 text-primary-500 border border-primary-300 rounded-lg cursor-not-allowed"
+                    className="w-full px-4 py-2 bg-gray-100 text-gray-600 border border-primary-300 rounded-lg"
                   />
                 </div>
                 <div className="flex justify-end gap-3 mt-6">
