@@ -8,13 +8,12 @@
 @layer base {
   html {
     font-family: 'Inter', system-ui, sans-serif;
-    /* Reducir todo al 75% como zoom out */
-    font-size: 12px; 
+    font-size: 11px; /* Tamaño base más reducido (68% del tamaño normal de 16px) */
   }
 
   body {
     @apply bg-background text-foreground;
-    zoom: 0.75; /* Aplica zoom al 75% a todo el contenido */
+    line-height: 1.4; /* Reducir espaciado entre líneas */
   }
 
   :root {

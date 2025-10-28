@@ -75,8 +75,8 @@ const Login: React.FC = () => {
                   onError={handleGoogleError}
                   text="continue_with"
                   shape="rectangular"
-                  size="large"
-                  width={350}
+                  size="medium"
+                  width={280}
                   useOneTap={false}
                   auto_select={false}
                   type="standard"
