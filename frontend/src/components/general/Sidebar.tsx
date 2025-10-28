@@ -12,9 +12,8 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  const { logout, getUser } = useAuth();
+  const { logout, user } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const usuario = getUser();
 
   return (
     <aside
@@ -60,9 +59,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             </div>
             <div>
               <p className="text-sm font-semibold">
-                {usuario
-                  ? (usuario as any).username || (usuario as any).nombreUsuario || 'Usuario'
-                  : 'Administrador'}
+                {user || 'Administrador'}
               </p>
               <p className="text-xs text-primary-500">CamilasBakery</p>
             </div>
