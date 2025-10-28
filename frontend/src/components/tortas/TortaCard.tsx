@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Torta } from "@/types/tortas";
 import MedidaButton from "./MedidaButton";
@@ -13,7 +13,7 @@ interface TortaCardProps {
   onGestionarMedidas: (tortaId: number) => void;
 }
 
-export const TortaCard: React.FC<TortaCardProps> = ({
+export const TortaCard: React.FC<TortaCardProps> = memo(({
   torta,
   isExpanded,
   onToggle,
@@ -22,6 +22,16 @@ export const TortaCard: React.FC<TortaCardProps> = ({
   onGestionarMedidas,
 }) => {
   const disponible = torta.CantidadMedidas > 0;
+
+  const handleMedidaClick = useCallback((e: React.MouseEvent, medidaId: number) => {
+    e.stopPropagation();
+    onMedidaSelect(medidaSeleccionada === medidaId ? null : medidaId);
+  }, [medidaSeleccionada, onMedidaSelect]);
+
+  const handleGestionarClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onGestionarMedidas(torta.IdTorta);
+  }, [torta.IdTorta, onGestionarMedidas]);
 
   return (
     <motion.div
@@ -77,22 +87,14 @@ export const TortaCard: React.FC<TortaCardProps> = ({
                         medida={medida}
                         tortaId={torta.IdTorta}
                         isSelected={medidaSeleccionada === medida.IdMedida}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onMedidaSelect(
-                            medidaSeleccionada === medida.IdMedida ? null : medida.IdMedida
-                          );
-                        }}
+                        onClick={(e) => handleMedidaClick(e, medida.IdMedida)}
                       />
                     ))}
                   </div>
 
                   {/* Botón de gestionar medidas */}
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onGestionarMedidas(torta.IdTorta);
-                    }}
+                    onClick={handleGestionarClick}
                     className="w-full flex items-center justify-center gap-2 px-4 py-2.5 
                       bg-primary-500 text-white rounded-lg hover:bg-primary-600 
                       transition-colors font-medium"
@@ -108,10 +110,7 @@ export const TortaCard: React.FC<TortaCardProps> = ({
                     Esta torta no tiene medidas configuradas
                   </p>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onGestionarMedidas(torta.IdTorta);
-                    }}
+                    onClick={handleGestionarClick}
                     className="w-full flex items-center justify-center gap-2 px-4 py-2.5 
                       bg-primary-500 text-white rounded-lg hover:bg-primary-600 
                       transition-colors font-medium"
@@ -127,4 +126,4 @@ export const TortaCard: React.FC<TortaCardProps> = ({
       </AnimatePresence>
     </motion.div>
   );
-};
+});

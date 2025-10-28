@@ -1,5 +1,5 @@
 // src/components/NavItem.tsx
-import React, { useState } from 'react';
+import React, { useState, memo, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 
@@ -16,13 +16,16 @@ const NavItem: React.FC<NavItemProps> = ({ name, href, icon: Icon, children, onC
   const isActive = location.pathname === href || children?.some(child => location.pathname === child.href);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const handleMouseEnter = useCallback(() => setIsExpanded(true), []);
+  const handleMouseLeave = useCallback(() => setIsExpanded(false), []);
+
   // Si tiene hijos, mostrar con expansión
   if (children && children.length > 0) {
     return (
       <div className="relative">
         <div
-          onMouseEnter={() => setIsExpanded(true)}
-          onMouseLeave={() => setIsExpanded(false)}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
           className="w-full"
         >
           {/* Botón principal */}
@@ -96,4 +99,4 @@ const NavItem: React.FC<NavItemProps> = ({ name, href, icon: Icon, children, onC
   );
 };
 
-export default NavItem;
+export default memo(NavItem);

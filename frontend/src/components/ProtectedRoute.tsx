@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import api from '../api/http';
+import { useAuth } from '@/hooks/useAuth';
+import { ROUTES } from '@/constants';
+import api from '@/api/http';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -27,7 +28,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     };
 
     // Si no hay auth tradicional, verificar Cloudflare
-    if (!isAuthenticated()) {
+    if (!isAuthenticated) {
       checkCloudflareAuth();
     } else {
       setIsCheckingAuth(false);
@@ -43,8 +44,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  if (!isAuthenticated() && !hasCloudflareAuth) {
-    return <Navigate to="/login" replace />;
+  if (!isAuthenticated && !hasCloudflareAuth) {
+    return <Navigate to={ROUTES.LOGIN} replace />;
   }
 
   return <>{children}</>;

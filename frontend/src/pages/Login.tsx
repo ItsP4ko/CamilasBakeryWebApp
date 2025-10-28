@@ -2,7 +2,8 @@ import React, { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google'
-import { useAuth } from "../hooks/useAuth"
+import { useAuth } from "@/hooks/useAuth"
+import { ROUTES } from "@/constants"
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("")
@@ -17,7 +18,7 @@ const Login: React.FC = () => {
     if (success) {
       setIsExiting(true)
       setTimeout(() => {
-        navigate("/dashboard")
+        navigate(ROUTES.DASHBOARD)
       }, 600)
     }
   }
@@ -28,7 +29,7 @@ const Login: React.FC = () => {
       if (success) {
         setIsExiting(true)
         setTimeout(() => {
-          navigate("/dashboard")
+          navigate(ROUTES.DASHBOARD)
         }, 600)
       }
     }

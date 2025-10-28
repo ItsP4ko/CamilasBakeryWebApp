@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 import { LucideIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -83,4 +83,4 @@ const StatsCard: React.FC<StatsCardProps> = ({
 };
 
 
-export default StatsCard;
+export default memo(StatsCard);
