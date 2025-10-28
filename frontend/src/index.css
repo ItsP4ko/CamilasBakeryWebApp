@@ -124,7 +124,9 @@
   .sidebar-item.active {
     @apply bg-primary-500 text-white hover:bg-primary-600;
   }
-  /* Ocultar scrollbar en toda la aplicación */
+}
+
+/* Ocultar scrollbar en toda la aplicación */
 * {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE y Edge */
@@ -132,5 +134,4 @@
 
 *::-webkit-scrollbar {
   display: none; /* Chrome, Safari y Opera */
-}
 }
