@@ -14,17 +14,17 @@ const Tortas: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   if (isLoading)
-    return <div className="text-center py-10 text-gray-600">Cargando tortas...</div>;
+    return <div className="text-center py-10 text-gray-600 dark:text-gray-400">Cargando tortas...</div>;
 
   if (error)
     return (
-      <div className="text-center text-red-600">
+      <div className="text-center text-red-600 dark:text-red-400">
         Error al cargar las tortas: {error.message}
       </div>
     );
 
   if (!data?.length)
-    return <div className="text-center text-primary-500">No hay tortas disponibles</div>;
+    return <div className="text-center text-gray-500 dark:text-gray-400">No hay tortas disponibles</div>;
 
   // Filtrar tortas por nombre
   const filteredData = data.filter((torta) =>
@@ -43,8 +43,8 @@ const Tortas: React.FC = () => {
     <div className="max-w-7xl mx-auto py-10 px-6">
       {/* Header */}
       <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold text-primary-900 mb-2">Catálogo de Tortas</h1>
-        <p className="text-primary-600">Gestión de tortas y precios</p>
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">Catálogo de Tortas</h1>
+        <p className="text-gray-600 dark:text-gray-400">Gestión de tortas y precios</p>
       </div>
 
       {/* Search Bar con botones integrados */}
@@ -52,19 +52,19 @@ const Tortas: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.1 }}
-        className="bg-primary-200 rounded-xl shadow-sm border border-primary-200 p-4 mb-8"
+        className="bg-gray-100 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-8"
       >
         <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400 w-5 h-5" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
           <input
             type="text"
             placeholder="Buscar torta por nombre..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 
-             bg-primary-100 text-primary-900 
-             placeholder-primary-500
-             border border-primary-300 
+             bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 
+             placeholder-gray-500 dark:placeholder-gray-400
+             border border-gray-300 dark:border-gray-600 
              rounded-lg 
              focus:ring-2 focus:ring-primary-400 focus:border-transparent 
              outline-none"/>
@@ -72,7 +72,7 @@ const Tortas: React.FC = () => {
         
         {/* Botones de gestión integrados */}
         <div className="flex items-center justify-between">
-          <span className="text-sm text-primary-600">
+          <span className="text-sm text-gray-600 dark:text-gray-400">
             Mostrando {filteredData.length} de {data?.length || 0} tortas
           </span>
           <BotonesGestionTorta
@@ -84,7 +84,7 @@ const Tortas: React.FC = () => {
 
       {/* Resultados */}
       {filteredData.length === 0 ? (
-        <div className="text-center py-10 text-primary-500">
+        <div className="text-center py-10 text-gray-500 dark:text-gray-400">
           No se encontraron tortas con "{searchTerm}"
         </div>
       ) : (

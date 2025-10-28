@@ -67,7 +67,7 @@ const PopupSeleccionarProducto: React.FC<PopupSeleccionarProductoProps> = ({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 max-h-[80vh] overflow-hidden flex flex-col"
+            className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl mx-4 max-h-[80vh] overflow-hidden flex flex-col"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-primary-500 to-primary-600 px-6 py-4 flex items-center justify-between">
@@ -95,23 +95,23 @@ const PopupSeleccionarProducto: React.FC<PopupSeleccionarProductoProps> = ({
                       placeholder="Buscar torta..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 bg-primary-50 text-primary-900 border border-primary-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                     />
                   </div>
 
                   {/* Lista de tortas */}
                   {loadingTortas ? (
-                    <div className="text-center py-8 text-primary-600">Cargando tortas...</div>
+                    <div className="text-center py-8 text-gray-600 dark:text-gray-400">Cargando tortas...</div>
                   ) : (
                     <div className="space-y-2">
                       {tortasFiltradas?.map((torta: any) => (
                         <button
                           key={torta.idTorta}
                           onClick={() => setTortaSeleccionada(torta)}
-                          className="w-full flex items-center justify-between p-4 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors text-left"
+                          className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors text-left"
                         >
-                          <span className="font-medium text-primary-900">{torta.nombre}</span>
-                          <ChevronRight className="w-5 h-5 text-primary-600" />
+                          <span className="font-medium text-gray-900 dark:text-gray-100">{torta.nombre}</span>
+                          <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                         </button>
                       ))}
                     </div>
@@ -123,14 +123,14 @@ const PopupSeleccionarProducto: React.FC<PopupSeleccionarProductoProps> = ({
                   {/* Botón volver */}
                   <button
                     onClick={() => setTortaSeleccionada(null)}
-                    className="text-primary-600 hover:text-primary-800 font-medium"
+                    className="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 font-medium"
                   >
                     ← Volver a tortas
                   </button>
 
                   {/* Cantidad */}
                   <div>
-                    <label className="block text-sm font-medium text-primary-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Cantidad
                     </label>
                     <input
@@ -138,27 +138,27 @@ const PopupSeleccionarProducto: React.FC<PopupSeleccionarProductoProps> = ({
                       min="1"
                       value={cantidad}
                       onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
-                      className="w-full px-4 py-2.5 bg-primary-50 text-primary-900 border border-primary-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+                      className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                     />
                   </div>
 
                   {/* Lista de medidas */}
                   {loadingMedidas ? (
-                    <div className="text-center py-8 text-primary-600">Cargando medidas...</div>
+                    <div className="text-center py-8 text-gray-600 dark:text-gray-400">Cargando medidas...</div>
                   ) : (
                     <div className="space-y-2">
-                      <h4 className="font-semibold text-primary-900 mb-3">Seleccione una medida:</h4>
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Seleccione una medida:</h4>
                       {medidas?.map((medida: any) => (
                         <button
                           key={medida.idMedidaDetalle}
                           onClick={() => handleSeleccionarMedida(medida)}
-                          className="w-full p-4 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors text-left"
+                          className="w-full p-4 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors text-left"
                         >
                           <div className="flex justify-between items-center">
                             <div>
-                              <span className="font-medium text-primary-900">{medida.tamano}</span>
+                              <span className="font-medium text-gray-900 dark:text-gray-100">{medida.tamano}</span>
                             </div>
-                            <span className="text-lg font-semibold text-green-600">
+                            <span className="text-lg font-semibold text-green-600 dark:text-green-400">
                               ${medida.precio?.toLocaleString('es-AR')}
                             </span>
                           </div>

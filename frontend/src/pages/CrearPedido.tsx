@@ -159,7 +159,7 @@ const CrearPedido: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl shadow-sm border border-primary-200 p-6 space-y-4"
+          className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-4"
         >
           {/* Información del Cliente y Detalles en dos columnas */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -279,7 +279,7 @@ const CrearPedido: React.FC = () => {
             ) : (
               <div className="space-y-2">
                 {productos.map((producto, index) => (
-                  <div key={index} className="bg-white border border-primary-200 rounded-lg p-3">
+                  <div key={index} className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-3">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
                         <h3 className="font-semibold text-primary-900">

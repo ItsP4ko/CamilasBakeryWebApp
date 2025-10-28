@@ -84,22 +84,22 @@ export const BotonesGestionTorta: React.FC<BotonesGestionTortaProps> = ({
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowCreateModal(false)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
-            <h3 className="text-xl font-bold text-primary-900 mb-4">Nueva Torta</h3>
+          <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Nueva Torta</h3>
             <form onSubmit={(e) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
               handleCreate({ nombre: formData.get('nombre') as string });
             }} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-primary-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Nombre de la Torta
                 </label>
                 <input
                   name="nombre"
                   type="text"
                   required
-                  className="w-full px-4 py-2 border border-primary-300 rounded-lg"
+                  className="w-full px-4 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-500 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                   placeholder="Ej: Torta de Chocolate"
                 />
               </div>
@@ -107,14 +107,14 @@ export const BotonesGestionTorta: React.FC<BotonesGestionTortaProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 text-primary-700 hover:bg-primary-100 rounded-lg"
+                  className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={createMutation.isPending}
-                  className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:bg-gray-300"
+                  className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:bg-gray-300 dark:disabled:bg-gray-600"
                 >
                   {createMutation.isPending ? 'Creando...' : 'Crear'}
                 </button>

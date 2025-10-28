@@ -8,26 +8,26 @@ interface MedidaDetalleProps {
 
 const MedidaDetalle: React.FC<MedidaDetalleProps> = ({ medida }) => {
   return (
-    <div className="text-left border-t pt-3 space-y-2">
+    <div className="text-left border-t border-gray-300 dark:border-gray-600 pt-3 space-y-2">
       <div className="flex justify-between text-xs">
-        <span className="text-primary-600">Costo Ingredientes:</span>
-        <span className="font-semibold">${medida.CostoIngredientes.toFixed(2)}</span>
+        <span className="text-gray-600 dark:text-gray-400">Costo Ingredientes:</span>
+        <span className="font-semibold text-gray-900 dark:text-gray-100">${medida.CostoIngredientes.toFixed(2)}</span>
       </div>
       <div className="flex justify-between text-xs">
-        <span className="text-primary-600">Costos Extra:</span>
-        <span className="font-semibold">${medida.CostoExtras.toFixed(2)}</span>
+        <span className="text-gray-600 dark:text-gray-400">Costos Extra:</span>
+        <span className="font-semibold text-gray-900 dark:text-gray-100">${medida.CostoExtras.toFixed(2)}</span>
       </div>
-      <div className="flex justify-between text-sm font-bold border-t pt-2">
-        <span className="text-primary-700">Costo Total:</span>
-        <span className="text-red-600">${medida.CostoTotal.toFixed(2)}</span>
+      <div className="flex justify-between text-sm font-bold border-t border-gray-300 dark:border-gray-600 pt-2">
+        <span className="text-gray-700 dark:text-gray-300">Costo Total:</span>
+        <span className="text-red-600 dark:text-red-400">${medida.CostoTotal.toFixed(2)}</span>
       </div>
       <div className="flex justify-between text-sm font-bold">
-        <span className="text-primary-700">Precio Venta:</span>
-        <span className="text-green-600">${medida.PrecioVenta.toFixed(2)}</span>
+        <span className="text-gray-700 dark:text-gray-300">Precio Venta:</span>
+        <span className="text-green-600 dark:text-green-400">${medida.PrecioVenta.toFixed(2)}</span>
       </div>
-      <div className="flex justify-between text-sm font-bold bg-primary-100 p-2 rounded">
-        <span className="text-primary-800">Ganancia:</span>
-        <span className="text-primary-800">${medida.Ganancia.toFixed(2)}</span>
+      <div className="flex justify-between text-sm font-bold bg-gray-100 dark:bg-gray-700 p-2 rounded">
+        <span className="text-gray-800 dark:text-gray-200">Ganancia:</span>
+        <span className="text-gray-800 dark:text-gray-200">${medida.Ganancia.toFixed(2)}</span>
       </div>
     </div>
   );

@@ -42,19 +42,19 @@ export const TortaCard: React.FC<TortaCardProps> = memo(({
       }}
       className={`rounded-xl border-2 transition-all ${
         disponible 
-          ? "cursor-pointer border-primary-200 bg-primary-200 hover:border-primary-400" 
-          : "cursor-pointer border-primary-200 bg-primary-50 hover:border-primary-300"
+          ? "cursor-pointer border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 hover:border-primary-400 dark:hover:border-primary-500" 
+          : "cursor-pointer border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-500"
       } ${isExpanded ? "shadow-lg" : "shadow-sm"}`}
     >
       {/* Header simple */}
       <div className="p-6 text-center">
         <h2 className={`text-2xl font-bold mb-2 ${
-          disponible ? "text-primary-900" : "text-primary-400"
+          disponible ? "text-gray-900 dark:text-gray-100" : "text-gray-400 dark:text-gray-500"
         }`}>
           {torta.Nombre}
         </h2>
         
-        <p className={`text-sm ${disponible ? "text-primary-600" : "text-primary-400"}`}>
+        <p className={`text-sm ${disponible ? "text-gray-600 dark:text-gray-400" : "text-gray-400 dark:text-gray-500"}`}>
           {disponible 
             ? `${torta.CantidadMedidas} ${torta.CantidadMedidas === 1 ? "tamaño disponible" : "tamaños disponibles"}`
             : "No disponible"
@@ -74,9 +74,9 @@ export const TortaCard: React.FC<TortaCardProps> = memo(({
               duration: 0.3,
               ease: "easeInOut"
             }}
-            className="overflow-hidden border-t border-primary-100"
+            className="overflow-hidden border-t border-gray-200 dark:border-gray-600"
           >
-            <div className="p-5 space-y-3 bg-primary-50 rounded-b-xl">
+            <div className="p-5 space-y-3 bg-gray-50 dark:bg-gray-800 rounded-b-xl">
               {disponible ? (
                 <>
                   {/* Lista de medidas para tortas disponibles */}
@@ -106,7 +106,7 @@ export const TortaCard: React.FC<TortaCardProps> = memo(({
               ) : (
                 /* Contenido para tortas no disponibles */
                 <div className="text-center py-4">
-                  <p className="text-primary-600 mb-4">
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
                     Esta torta no tiene medidas configuradas
                   </p>
                   <button

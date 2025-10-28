@@ -161,11 +161,11 @@ const ModificarMedida: React.FC = () => {
   })) || [];
 
   if (isLoading) {
-    return <div className="text-center py-10">Cargando...</div>;
+    return <div className="text-center py-10 text-gray-600 dark:text-gray-400">Cargando...</div>;
   }
 
   if (!medida) {
-    return <div className="text-center py-10">Medida no encontrada</div>;
+    return <div className="text-center py-10 text-gray-600 dark:text-gray-400">Medida no encontrada</div>;
   }
 
   return (
@@ -174,13 +174,13 @@ const ModificarMedida: React.FC = () => {
       <div className="mb-8">
         <button
           onClick={() => navigate(`/tortas/${tortaId}/medidas`)}
-          className="flex items-center gap-2 text-primary-600 hover:text-primary-700 mb-4"
+          className="flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 mb-4"
         >
           <ArrowLeft className="w-5 h-5" />
           Volver a Medidas
         </button>
 
-        <h1 className="text-3xl font-bold text-primary-900">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
           Contenido de Medida - {medida.Tamano}
         </h1>
       </div>
@@ -192,12 +192,12 @@ const ModificarMedida: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-xl border-2 border-primary-200 p-5"
+            className="bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 p-5"
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Package className="w-6 h-6 text-primary-600" />
-                <h2 className="text-xl font-bold text-primary-900">Ingredientes</h2>
+                <Package className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Ingredientes</h2>
               </div>
               <button
                 onClick={() => setShowAddIngrediente(true)}
@@ -210,16 +210,16 @@ const ModificarMedida: React.FC = () => {
 
             <div className="space-y-2">
               {medida.Ingredientes?.length === 0 ? (
-                <p className="text-primary-500 text-center py-4">No hay ingredientes agregados</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-4">No hay ingredientes agregados</p>
               ) : (
                 medida.Ingredientes?.map((ing) => (
                   <div
                     key={ing.IdMedidaIngrediente}
-                    className="flex items-center justify-between p-3 bg-primary-50 rounded-lg"
+                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
                   >
                     <div className="flex-1">
-                      <p className="font-medium text-primary-900">{ing.NombreIngrediente}</p>
-                      <p className="text-sm text-primary-600">
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{ing.NombreIngrediente}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
                         {ing.CantidadUsada} {ing.UnidadUsada} • ${ing.CostoTotal.toFixed(2)}
                       </p>
                     </div>
@@ -229,7 +229,7 @@ const ModificarMedida: React.FC = () => {
                           setIngredienteSeleccionado(ing);
                           setShowEditIngrediente(true);
                         }}
-                        className="p-1.5 text-primary-600 hover:bg-primary-200 rounded"
+                        className="p-1.5 text-primary-600 dark:text-primary-400 hover:bg-gray-200 dark:hover:bg-gray-600 rounded"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
@@ -238,7 +238,7 @@ const ModificarMedida: React.FC = () => {
                           setIngredienteSeleccionado(ing);
                           setShowDeleteIngrediente(true);
                         }}
-                        className="p-1.5 text-red-600 hover:bg-red-100 rounded"
+                        className="p-1.5 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -248,8 +248,8 @@ const ModificarMedida: React.FC = () => {
               )}
             </div>
 
-            <div className="mt-4 pt-4 border-t border-primary-200">
-              <p className="text-right text-primary-700 font-medium">
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <p className="text-right text-gray-700 dark:text-gray-300 font-medium">
                 Subtotal Ingredientes: ${medida.CostoIngredientes.toFixed(2)}
               </p>
             </div>
@@ -260,12 +260,12 @@ const ModificarMedida: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white rounded-xl border-2 border-primary-200 p-5"
+            className="bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 p-5"
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <DollarSign className="w-6 h-6 text-green-600" />
-                <h2 className="text-xl font-bold text-primary-900">Costos Extra</h2>
+                <DollarSign className="w-6 h-6 text-green-600 dark:text-green-400" />
+                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Costos Extra</h2>
               </div>
               <button
                 onClick={() => setShowAddCosto(true)}
@@ -278,16 +278,16 @@ const ModificarMedida: React.FC = () => {
 
             <div className="space-y-2">
               {medida.CostosExtra?.length === 0 ? (
-                <p className="text-primary-500 text-center py-4">No hay costos extra agregados</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-4">No hay costos extra agregados</p>
               ) : (
                 medida.CostosExtra?.map((costo) => (
                   <div
                     key={costo.IdMedidaCostoExtra}
-                    className="flex items-center justify-between p-3 bg-green-50 rounded-lg"
+                    className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg"
                   >
                     <div className="flex-1">
-                      <p className="font-medium text-primary-900">{costo.NombreCostoExtra}</p>
-                      <p className="text-sm text-primary-600">
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{costo.NombreCostoExtra}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
                         {costo.CantidadUsada} unidad • ${costo.CostoTotal.toFixed(2)}
                       </p>
                     </div>
@@ -296,7 +296,7 @@ const ModificarMedida: React.FC = () => {
                         setCostoSeleccionado(costo);
                         setShowDeleteCosto(true);
                       }}
-                      className="p-1.5 text-red-600 hover:bg-red-100 rounded"
+                      className="p-1.5 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -305,8 +305,8 @@ const ModificarMedida: React.FC = () => {
               )}
             </div>
 
-            <div className="mt-4 pt-4 border-t border-green-200">
-              <p className="text-right text-primary-700 font-medium">
+            <div className="mt-4 pt-4 border-t border-green-200 dark:border-gray-700">
+              <p className="text-right text-gray-700 dark:text-gray-300 font-medium">
                 Subtotal Extras: ${medida.CostoExtras.toFixed(2)}
               </p>
             </div>
@@ -318,10 +318,10 @@ const ModificarMedida: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl p-5 text-white sticky top-6"
+            className="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-xl p-5 border border-gray-300 dark:border-gray-600 sticky top-6"
           >
-            <h2 className="text-xl font-bold mb-4"><strong>Resumen</strong></h2>
-            <div className="space-y-3">
+            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100"><strong>Resumen</strong></h2>
+            <div className="space-y-3 text-gray-800 dark:text-gray-200">
               <div className="flex justify-between">
                 <span>Costo Ingredientes:</span>
                 <span className="font-medium">${medida.CostoIngredientes.toFixed(2)}</span>
@@ -330,18 +330,18 @@ const ModificarMedida: React.FC = () => {
                 <span>Costo Extras:</span>
                 <span className="font-medium">${medida.CostoExtras.toFixed(2)}</span>
               </div>
-              <div className="border-t border-white/20 pt-3">
+              <div className="border-t border-gray-400 dark:border-gray-600 pt-3">
                 <div className="flex justify-between text-lg font-bold">
                   <span>Costo Total:</span>
                   <span>${medida.CostoTotal.toFixed(2)}</span>
                 </div>
               </div>
-              <div className="border-t border-white/20 pt-3">
+              <div className="border-t border-gray-400 dark:border-gray-600 pt-3">
                 <div className="flex justify-between">
                   <span>Precio Venta (x2.7):</span>
                   <span className="font-medium">${medida.PrecioVenta.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-green-300 font-bold mt-2">
+                <div className="flex justify-between text-green-600 dark:text-green-400 font-bold mt-2">
                   <span>Ganancia:</span>
                   <span>${medida.Ganancia.toFixed(2)}</span>
                 </div>
@@ -373,12 +373,12 @@ const ModificarMedida: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6"
+              className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6"
             >
-              <h3 className="text-xl font-bold text-primary-900 mb-4">Agregar Costo Extra</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Agregar Costo Extra</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-primary-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Costo Extra
                   </label>
                   <Select
@@ -386,10 +386,48 @@ const ModificarMedida: React.FC = () => {
                     value={costoExtraSeleccionado}
                     onChange={setCostoExtraSeleccionado}
                     placeholder="Seleccionar costo extra..."
+                    styles={{
+                      control: (base, state) => ({
+                        ...base,
+                        borderRadius: '0.5rem',
+                        borderColor: state.isFocused ? '#10b981' : '#d1d5db',
+                        padding: '2px',
+                        boxShadow: 'none',
+                        backgroundColor: document.documentElement.classList.contains('dark') ? '#4b5563' : 'white',
+                        '&:hover': { borderColor: '#10b981' }
+                      }),
+                      menu: (base) => ({
+                        ...base,
+                        backgroundColor: document.documentElement.classList.contains('dark') ? '#374151' : 'white',
+                        borderRadius: '0.5rem',
+                      }),
+                      option: (base, state) => ({
+                        ...base,
+                        backgroundColor: state.isFocused 
+                          ? (document.documentElement.classList.contains('dark') ? '#4b5563' : '#f3f4f6')
+                          : (document.documentElement.classList.contains('dark') ? '#374151' : 'white'),
+                        color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#111827',
+                        '&:active': {
+                          backgroundColor: document.documentElement.classList.contains('dark') ? '#4b5563' : '#e5e7eb'
+                        }
+                      }),
+                      singleValue: (base) => ({
+                        ...base,
+                        color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#111827',
+                      }),
+                      input: (base) => ({
+                        ...base,
+                        color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#111827',
+                      }),
+                      placeholder: (base) => ({
+                        ...base,
+                        color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280',
+                      }),
+                    }}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-primary-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Cantidad
                   </label>
                   <input
@@ -397,7 +435,7 @@ const ModificarMedida: React.FC = () => {
                     step="0.01"
                     value={cantidadCosto}
                     onChange={(e) => setCantidadCosto(e.target.value)}
-                    className="w-full px-4 py-2 border border-primary-300 rounded-lg"
+                    className="w-full px-4 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-500 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
                     placeholder="Ej: 1, 0.5..."
                   />
                 </div>
@@ -405,14 +443,14 @@ const ModificarMedida: React.FC = () => {
               <div className="flex justify-end gap-3 mt-6">
                 <button
                   onClick={() => setShowAddCosto(false)}
-                  className="px-4 py-2 text-primary-700 hover:bg-primary-100 rounded-lg"
+                  className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={handleAddCosto}
                   disabled={!costoExtraSeleccionado || !cantidadCosto}
-                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:bg-gray-300"
+                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:bg-gray-300 dark:disabled:bg-gray-600"
                 >
                   Agregar
                 </button>
@@ -437,9 +475,9 @@ const ModificarMedida: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6"
+              className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6"
             >
-              <h3 className="text-xl font-bold text-primary-900 mb-4">Editar Ingrediente</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Editar Ingrediente</h3>
               <form onSubmit={(e) => {
                 e.preventDefault();
                 const formData = new FormData(e.currentTarget);
@@ -449,18 +487,18 @@ const ModificarMedida: React.FC = () => {
                 });
               }} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-primary-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Ingrediente
                   </label>
                   <input
                     type="text"
                     value={ingredienteSeleccionado.NombreIngrediente}
                     disabled
-                    className="w-full px-4 py-2 bg-gray-100 text-gray-600 border border-primary-300 rounded-lg"
+                    className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-lg"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-primary-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Cantidad
                   </label>
                   <input
@@ -470,32 +508,32 @@ const ModificarMedida: React.FC = () => {
                     min="0.01"
                     defaultValue={ingredienteSeleccionado.CantidadUsada}
                     required
-                    className="w-full px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="w-full px-4 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-500 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-primary-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Unidad
                   </label>
                   <input
                     type="text"
                     value={ingredienteSeleccionado.UnidadUsada}
                     disabled
-                    className="w-full px-4 py-2 bg-gray-100 text-gray-600 border border-primary-300 rounded-lg"
+                    className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-lg"
                   />
                 </div>
                 <div className="flex justify-end gap-3 mt-6">
                   <button
                     type="button"
                     onClick={() => setShowEditIngrediente(false)}
-                    className="px-4 py-2 text-primary-700 hover:bg-primary-100 rounded-lg"
+                    className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={updateIngredienteMutation.isPending}
-                    className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:bg-gray-300"
+                    className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:bg-gray-300 dark:disabled:bg-gray-600"
                   >
                     {updateIngredienteMutation.isPending ? 'Guardando...' : 'Guardar'}
                   </button>

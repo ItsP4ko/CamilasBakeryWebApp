@@ -85,11 +85,11 @@ const GestionMedidas: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div className="text-center py-10">Cargando...</div>;
+    return <div className="text-center py-10 text-gray-600 dark:text-gray-400">Cargando...</div>;
   }
 
   if (!torta) {
-    return <div className="text-center py-10">Torta no encontrada</div>;
+    return <div className="text-center py-10 text-gray-600 dark:text-gray-400">Torta no encontrada</div>;
   }
 
   return (
@@ -98,13 +98,13 @@ const GestionMedidas: React.FC = () => {
       <div className="mb-8">
         <button
           onClick={() => navigate('/tortas')}
-          className="flex items-center gap-2 text-primary-600 hover:text-primary-700 mb-4"
+          className="flex items-center gap-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 mb-4"
         >
           <ArrowLeft className="w-5 h-5" />
           Volver a Tortas
         </button>
         
-        <h1 className="text-3xl font-bold text-primary-900">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
           Gestión de Medidas - {torta.Nombre}
         </h1>
       </div>
@@ -113,7 +113,7 @@ const GestionMedidas: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-primary-100 rounded-xl p-4 mb-6"
+        className="bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mb-6"
       >
         <button
           onClick={() => setShowCreateModal(true)}
@@ -126,7 +126,7 @@ const GestionMedidas: React.FC = () => {
 
       {/* Lista de medidas */}
       {torta.Medidas.length === 0 ? (
-        <div className="text-center py-10 text-primary-500">
+        <div className="text-center py-10 text-gray-500 dark:text-gray-400">
           No hay medidas disponibles para esta torta
         </div>
       ) : (
@@ -136,20 +136,20 @@ const GestionMedidas: React.FC = () => {
               key={medida.IdMedida}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-white rounded-xl border-2 border-primary-200 p-5 hover:shadow-lg transition-all"
+              className="bg-white dark:bg-gray-700 rounded-xl border-2 border-gray-200 dark:border-gray-600 p-5 hover:shadow-lg transition-all"
             >
               <div className="mb-4">
-                <h3 className="text-xl font-bold text-primary-900 mb-1">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                   Medida: {medida.Tamano}
                 </h3>
-                <div className="border-t border-primary-100 pt-3 mt-3 space-y-1">
-                  <p className="text-sm text-primary-600">
+                <div className="border-t border-gray-200 dark:border-gray-600 pt-3 mt-3 space-y-1">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     <span className="font-medium">Costo Total:</span> ${medida.CostoTotal.toFixed(2)}
                   </p>
-                  <p className="text-sm text-primary-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     <span className="font-medium">Precio Venta:</span> ${medida.PrecioVenta.toFixed(2)}
                   </p>
-                  <p className="text-sm text-green-600 font-medium">
+                  <p className="text-sm text-green-600 dark:text-green-400 font-medium">
                     <span>Ganancia:</span> ${medida.Ganancia.toFixed(2)}
                   </p>
                 </div>
@@ -161,7 +161,7 @@ const GestionMedidas: React.FC = () => {
                     setMedidaSeleccionada(medida);
                     setShowEditModal(true);
                   }}
-                  className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-primary-200 text-primary-700 rounded hover:bg-primary-300 text-sm"
+                  className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-500 text-sm"
                 >
                   <Edit2 className="w-4 h-4" />
                   Editar
@@ -172,7 +172,7 @@ const GestionMedidas: React.FC = () => {
                     setMedidaSeleccionada(medida);
                     setShowDeleteModal(true);
                   }}
-                  className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200 text-sm"
+                  className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded hover:bg-red-200 dark:hover:bg-red-900/50 text-sm"
                 >
                   <Trash2 className="w-4 h-4" />
                   Eliminar
@@ -180,7 +180,7 @@ const GestionMedidas: React.FC = () => {
                 
                 <button
                   onClick={() => handleModificarContenido(medida.IdMedida)}
-                  className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-green-100 text-green-700 rounded hover:bg-green-200 text-sm"
+                  className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded hover:bg-green-200 dark:hover:bg-green-900/50 text-sm"
                 >
                   <FileText className="w-4 h-4" />
                   Contenido
@@ -195,22 +195,22 @@ const GestionMedidas: React.FC = () => {
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowCreateModal(false)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
-            <h3 className="text-xl font-bold text-primary-900 mb-4">Nueva Medida</h3>
+          <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Nueva Medida</h3>
             <form onSubmit={(e) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
               handleCreate({ tamano: formData.get('tamano') as string });
             }} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-primary-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Tamaño de la Medida
                 </label>
                 <input
                   name="tamano"
                   type="text"
                   required
-                  className="w-full px-4 py-2 border border-primary-300 rounded-lg"
+                  className="w-full px-4 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-500 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                   placeholder="Ej: Pequeña, Mediana, Grande"
                 />
               </div>
@@ -218,14 +218,14 @@ const GestionMedidas: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 text-primary-700 hover:bg-primary-100 rounded-lg"
+                  className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={createMutation.isPending}
-                  className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:bg-gray-300"
+                  className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:bg-gray-300 dark:disabled:bg-gray-600"
                 >
                   {createMutation.isPending ? 'Creando...' : 'Crear'}
                 </button>
@@ -241,15 +241,15 @@ const GestionMedidas: React.FC = () => {
           {showEditModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center">
               <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowEditModal(false)} />
-              <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
-                <h3 className="text-xl font-bold text-primary-900 mb-4">Editar Medida</h3>
+              <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Editar Medida</h3>
                 <form onSubmit={(e) => {
                   e.preventDefault();
                   const formData = new FormData(e.currentTarget);
                   handleEdit({ tamano: formData.get('tamano') as string });
                 }} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-primary-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Tamaño de la Medida
                     </label>
                     <input
@@ -257,21 +257,21 @@ const GestionMedidas: React.FC = () => {
                       type="text"
                       defaultValue={medidaSeleccionada.Tamano}
                       required
-                      className="w-full px-4 py-2 border border-primary-300 rounded-lg"
+                      className="w-full px-4 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-500 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                     />
                   </div>
                   <div className="flex justify-end gap-3 mt-6">
                     <button
                       type="button"
                       onClick={() => setShowEditModal(false)}
-                      className="px-4 py-2 text-primary-700 hover:bg-primary-100 rounded-lg"
+                      className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
                     >
                       Cancelar
                     </button>
                     <button
                       type="submit"
                       disabled={updateMutation.isPending}
-                      className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:bg-gray-300"
+                      className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:bg-gray-300 dark:disabled:bg-gray-600"
                     >
                       {updateMutation.isPending ? 'Guardando...' : 'Guardar'}
                     </button>
