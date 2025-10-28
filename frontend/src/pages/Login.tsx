@@ -75,7 +75,7 @@ const Login: React.FC = () => {
                   text="continue_with"
                   shape="rectangular"
                   size="large"
-                  width="100%"
+                  width={350}
                   useOneTap={false}
                   auto_select={false}
                   type="standard"
