@@ -139,7 +139,7 @@ const CostoExtra: React.FC = () => {
           onClick={() => setSearchTerm("")}
         />
         <StatsCard
-          label="Ingredientes mas costoso"
+          label="Costo extra mas costoso"
           value={costoExtraMasCostoso?.nombre ?? "N/A"}
           icon={DollarSignIcon}
           iconColor="primary"
