@@ -51,21 +51,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
 
-        {/* Usuario */}
-        <div className="p-6 bg-primary-100 border-b border-primary-200">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary-400 rounded-full flex items-center justify-center font-bold text-white text-sm">
-              CB
-            </div>
-            <div>
-              <p className="text-sm font-semibold">
-                {user || 'Administrador'}
-              </p>
-              <p className="text-xs text-primary-500">CamilasBakery</p>
-            </div>
-          </div>
-        </div>
-
         {/* Menú */}
         <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
           {navigationItems.map((item) => (
