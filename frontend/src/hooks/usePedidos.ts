@@ -61,7 +61,9 @@ export function useEliminarPedido() {
   return useMutation({
     mutationFn: (id: number) => api.eliminarPedido(id),
     onSuccess: () => {
+      // Invalida todas las queries que empiecen con 'pedidos' (incluyendo 'pedidos-filtrados')
       queryClient.invalidateQueries({ queryKey: ['pedidos'] });
+      queryClient.invalidateQueries({ queryKey: ['pedidos-filtrados'] });
       toast.success('Pedido eliminado exitosamente');
     },
     onError: (error: any) => {
