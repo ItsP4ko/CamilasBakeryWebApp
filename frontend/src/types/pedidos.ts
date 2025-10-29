@@ -88,11 +88,11 @@ export interface Extra {
   }
 
   export interface ActualizarPedidoDTO{
-     Fecha: string;
-    Nota: string;
-    PrecioExtra: number;
-    MetodoDePago: string;
-    Estado: string;
+     Fecha?: string;
+    Nota?: string;
+    PrecioExtra?: number;
+    MetodoDePago?: string;
+    Estado?: string;
   }
 
   export interface TotalVentasFecha{

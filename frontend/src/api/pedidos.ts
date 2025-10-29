@@ -180,7 +180,7 @@ export const crearPedido = async (pedido: CrearPedidoDTO): Promise<Pedido> => {
     IdCliente: pedido.idCliente,
     NombreCliente: pedido.nombreCliente,
     TelefonoCliente: pedido.telefonoCliente,
-    Fecha: pedido.fecha,
+    Fecha: pedido.fecha, // El backend espera string en formato 'YYYY-MM-DD' y lo convierte a DateOnly
     Nota: pedido.nota || '',
     PrecioExtra: pedido.precioExtra || 0,
     MetodoDePago: pedido.metodoDePago,
