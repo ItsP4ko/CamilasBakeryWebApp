@@ -87,7 +87,60 @@ export const getPedidoById = async (id: number): Promise<Pedido> => {
   return mapPedidoFromBackend(response.data);
 };
 
-// Buscar pedidos por nombre de cliente
+// Buscar pedidos con filtros combinados (ENDPOINT PRINCIPAL)
+export interface PedidosFiltrosParams {
+  nombreCliente?: string;
+  estado?: string;
+  fechaInicio?: string;
+  fechaFin?: string;
+  metodoPago?: string;
+  montoMinimo?: number;
+  montoMaximo?: number;
+  pageNumber?: number;
+  pageSize?: number;
+}
+
+export const getPedidosConFiltros = async (filtros: PedidosFiltrosParams = {}): Promise<PagedResult<PedidoResumen>> => {
+  const params = new URLSearchParams();
+  
+  // El backend usa PascalCase para los query params
+  if (filtros.nombreCliente) params.append('NombreCliente', filtros.nombreCliente);
+  if (filtros.estado) params.append('Estado', filtros.estado);
+  if (filtros.fechaInicio) params.append('FechaInicio', filtros.fechaInicio);
+  if (filtros.fechaFin) params.append('FechaFin', filtros.fechaFin);
+  if (filtros.metodoPago) params.append('MetodoDePago', filtros.metodoPago);
+  if (filtros.montoMinimo !== undefined) params.append('MontoMinimo', filtros.montoMinimo.toString());
+  if (filtros.montoMaximo !== undefined) params.append('MontoMaximo', filtros.montoMaximo.toString());
+  
+  // ⚠️ Este endpoint NO soporta paginación, retorna todos los resultados
+  
+  const fullUrl = `/api/Pedidos/filtro?${params.toString()}`;
+  
+  const response = await api.get(fullUrl);
+  
+  // ⚠️ El endpoint /filtro retorna un ARRAY directamente, no un PagedResult
+  // Necesitamos convertirlo a PagedResult manualmente
+  const pedidosArray = Array.isArray(response.data) ? response.data : [];
+  
+  const items = pedidosArray.map((pedido: any) => ({
+    idPedido: pedido.IdPedido || pedido.idPedido,
+    nombreCliente: pedido.NombreCliente || pedido.nombreCliente,
+    fecha: pedido.Fecha || pedido.fecha,
+    total: pedido.Total || pedido.total,
+    metodoDePago: pedido.MetodoDePago || pedido.metodoDePago,
+    estado: pedido.Estado || pedido.estado,
+  }));
+  
+  return {
+    items,
+    totalCount: items.length,
+    pageNumber: 1,
+    pageSize: items.length,
+    totalPages: 1,
+  };
+};
+
+// Buscar pedidos por nombre de cliente (DEPRECATED - usa getPedidosConFiltros)
 export const getPedidosByNombre = async (nombre: string): Promise<Pedido[]> => {
   const response = await api.get(`/api/Pedidos/nombre/${nombre}`);
   

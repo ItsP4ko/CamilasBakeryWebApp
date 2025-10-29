@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useMemo, lazy, Suspense } from "react";
-import { ShoppingBag, Clock, CheckCircle, DollarSign, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { ShoppingBag, Clock, CheckCircle, DollarSign, Plus, ChevronLeft, ChevronRight, Search, Filter } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import StatsCard from "@/components/general/StatsCard";
 import PedidosTable from "@/components/pedidos/PedidosTable";
-import { usePedidos } from "@/hooks/usePedidos";
+import PedidosFiltros, { FiltersData } from "@/components/pedidos/PedidosFiltros";
+import { useEliminarPedido } from "@/hooks/usePedidos";
 import { useDashboardMetrics } from "@/hooks/useDashboardMetrics";
 import { useUpdatePedido } from "@/hooks/useUpdatePedido";
 import * as api from "@/api/pedidos";
+import { PedidoResumen } from "@/types/pedidos";
 
 // ✅ Lazy load del popup (solo se carga cuando se abre)
 const PedidoDetallePopup = lazy(() => import("@/components/pedidos/PedidoDetallePopup")); 
@@ -19,37 +21,115 @@ const PedidosDashboard: React.FC = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize] = useState(50); // Tamaño de página fijo
   
-  const { data: pedidosData, isLoading, error } = usePedidos(pageNumber, pageSize);
   const { data: metrics, isLoading: metricsLoading } = useDashboardMetrics();
   const { mutate: updatePedido } = useUpdatePedido();
+  const { mutate: deletePedido } = useEliminarPedido();
 
-  const [popupOpen, setPopupOpen] = useState(false);
   const [selectedPedidoId, setSelectedPedidoId] = useState<number | null>(null);
+  
+  // Estados para búsqueda y filtros
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filtrosOpen, setFiltrosOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<FiltersData>({});
+
+  // ✅ Verificar si hay filtros activos (sin contar el searchTerm)
+  const hasActiveFilters = Object.keys(activeFilters).length > 0;
+
+  // ✅ Hook optimizado: usa endpoints específicos según lo que esté activo
+  const { data: pedidosData, isLoading } = useQuery({
+    queryKey: ['pedidos-filtrados', pageNumber, pageSize, searchTerm, activeFilters],
+    queryFn: async () => {
+      // Si hay filtros avanzados, usa el endpoint de filtros
+      if (hasActiveFilters) {
+        return api.getPedidosConFiltros({
+          nombreCliente: searchTerm || undefined,
+          estado: activeFilters.estado,
+          fechaInicio: activeFilters.fechaInicio,
+          fechaFin: activeFilters.fechaFin,
+          metodoPago: activeFilters.metodoPago,
+          montoMinimo: activeFilters.montoMinimo,
+          montoMaximo: activeFilters.montoMaximo,
+          pageNumber,
+          pageSize,
+        });
+      }
+      
+      // Si solo hay búsqueda por nombre (sin filtros), usa el endpoint existente
+      // pero hay que adaptarlo porque no retorna PagedResult
+      if (searchTerm && !hasActiveFilters) {
+        const pedidos = await api.getPedidosByNombre(searchTerm);
+        // Convertir a formato PagedResult manualmente
+        return {
+          items: pedidos.map((p: any) => ({
+            idPedido: p.idPedido,
+            nombreCliente: p.nombreCliente,
+            fecha: p.fecha,
+            total: p.total,
+            metodoDePago: p.metodoDePago,
+            estado: p.estado,
+          })),
+          totalCount: pedidos.length,
+          pageNumber: 1,
+          pageSize: pedidos.length,
+          totalPages: 1,
+        };
+      }
+      
+      // Si no hay filtros ni búsqueda, usa el endpoint normal
+      return api.getPedidos(pageNumber, pageSize);
+    },
+    staleTime: 30000, // 30 segundos
+  });
 
   const list = pedidosData?.items ?? [];
   const totalPedidos = pedidosData?.totalCount ?? 0;
   const totalPages = pedidosData?.totalPages ?? 1;
 
-  // ✅ Prefetch: Precarga la página siguiente
+  // ✅ Prefetch: Precarga la página siguiente (solo si no hay búsqueda activa)
   useEffect(() => {
-    if (pageNumber < totalPages) {
+    if (pageNumber < totalPages && !searchTerm && hasActiveFilters) {
       queryClient.prefetchQuery({
-        queryKey: ['pedidos', pageNumber + 1, pageSize],
-        queryFn: () => api.getPedidos(pageNumber + 1, pageSize),
+        queryKey: ['pedidos-filtrados', pageNumber + 1, pageSize, searchTerm, activeFilters],
+        queryFn: () => api.getPedidosConFiltros({
+          nombreCliente: searchTerm || undefined,
+          estado: activeFilters.estado,
+          fechaInicio: activeFilters.fechaInicio,
+          fechaFin: activeFilters.fechaFin,
+          metodoPago: activeFilters.metodoPago,
+          montoMinimo: activeFilters.montoMinimo,
+          montoMaximo: activeFilters.montoMaximo,
+          pageNumber: pageNumber + 1,
+          pageSize,
+        }),
       });
     }
-  }, [pageNumber, totalPages, pageSize, queryClient]);
+  }, [pageNumber, totalPages, pageSize, searchTerm, activeFilters, queryClient, hasActiveFilters]);
 
   // ✅ Memoización: Evita recalcular en cada render
   const pedidosEntregados = useMemo(
-    () => list.filter((p) => ["entregado"].includes((p.estado ?? "").toLowerCase())).length,
+    () => list.filter((p: PedidoResumen) => ["entregado"].includes((p.estado ?? "").toLowerCase())).length,
     [list]
   );
 
-  const loading = isLoading || metricsLoading;
+  const handleApplyFilters = (filters: FiltersData) => {
+    setActiveFilters(filters);
+    setPageNumber(1); // Reset a la página 1 cuando se aplican filtros
+  };
+
+  // Contar filtros activos
+  const activeFiltersCount = Object.keys(activeFilters).length;
+
+  // Reset página cuando cambia el searchTerm
+  useEffect(() => {
+    setPageNumber(1);
+  }, [searchTerm]);
 
   const handleUpdatePedido = (pedidoActualizado: any) => {
     updatePedido(pedidoActualizado);
+  };
+
+  const handleDeletePedido = (idPedido: number) => {
+    deletePedido(idPedido);
   };
 
   const handlePreviousPage = () => {
@@ -68,7 +148,6 @@ const PedidosDashboard: React.FC = () => {
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8">
       {/* --- Métricas --- */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <StatsCard label="Total de pedidos" value={totalPedidos} icon={ShoppingBag} />
         <StatsCard
           label="Pendientes estas dos semanas"
           value={metrics?.pedidosPendientes ?? "0"}
@@ -100,6 +179,61 @@ const PedidosDashboard: React.FC = () => {
         </button>
       </div>
 
+      {/* --- Search Bar con Filtros --- */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+        className="bg-primary-200 dark:bg-gray-800 rounded-xl shadow-sm border border-primary-200 dark:border-gray-700 p-4"
+      >
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400 dark:text-gray-500 w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Buscar por nombre de cliente..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 
+             bg-primary-100 dark:bg-gray-700 text-primary-900 dark:text-white
+             placeholder-primary-500 dark:placeholder-gray-400
+             border border-primary-300 dark:border-gray-600
+             rounded-lg 
+             focus:ring-2 focus:ring-primary-400 focus:border-transparent 
+             outline-none"
+          />
+        </div>
+
+        {/* Línea inferior: Mostrar / Filtros */}
+        <div className="flex items-center justify-between mt-2 text-xs sm:text-sm text-primary-600 dark:text-gray-400">
+          {list.length > 0 ? (
+            <p>
+              Mostrando {list.length} pedidos
+              {totalPedidos > 0 && ` de ${totalPedidos} totales`}
+              {activeFiltersCount > 0 && (
+                <span className="ml-2 text-primary-500 dark:text-primary-400 font-medium">
+                  ({activeFiltersCount} filtro{activeFiltersCount > 1 ? 's' : ''} activo{activeFiltersCount > 1 ? 's' : ''})
+                </span>
+              )}
+            </p>
+          ) : (
+            <p>&nbsp;</p>
+          )}
+
+          <button
+            onClick={() => setFiltrosOpen(true)}
+            className="flex items-center gap-1 text-primary-500 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors text-xs font-medium"
+          >
+            <Filter className="w-4 h-4" />
+            Filtros
+            {activeFiltersCount > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 bg-primary-500 text-white rounded-full text-[10px] font-bold">
+                {activeFiltersCount}
+              </span>
+            )}
+          </button>
+        </div>
+      </motion.div>
+
       {/* --- Tabla --- */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -109,9 +243,10 @@ const PedidosDashboard: React.FC = () => {
       >
         <PedidosTable
           data={list}
-          isLoading={loading}
+          isLoading={isLoading || metricsLoading}
           onView={(pedido) => setSelectedPedidoId(pedido.idPedido)}
           onUpdate={handleUpdatePedido}
+          onDelete={handleDeletePedido}
         />
         
         {/* --- Controles de paginación --- */}
@@ -159,6 +294,13 @@ const PedidosDashboard: React.FC = () => {
           />
         </Suspense>
       )}
+
+      {/* --- Popup de filtros --- */}
+      <PedidosFiltros
+        isOpen={filtrosOpen}
+        onClose={() => setFiltrosOpen(false)}
+        onApplyFilters={handleApplyFilters}
+      />
     </div>
   );
 };

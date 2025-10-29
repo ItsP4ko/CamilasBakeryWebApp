@@ -1,6 +1,7 @@
-import React from "react";
-import { Eye, Edit } from "lucide-react";
+import React, { useState } from "react";
+import { Eye, Edit, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import PopupConfirm from "@/components/general/PopupConfirm";
 
 const estados = ["Pendiente", "Falta decorar", "Completado", "Entregado", "Cancelado"];
 const metodos = ["Efectivo", "Brubank", "Uala", "Mercado Pago", "Definir"];
@@ -10,13 +11,34 @@ interface PedidosTableProps {
   isLoading: boolean;
   onView: (pedido: any) => void;
   onUpdate: (pedido: any) => void;
+  onDelete: (idPedido: number) => void;
 }
 
-const PedidosTable: React.FC<PedidosTableProps> = ({ data, isLoading, onView, onUpdate }) => {
+const PedidosTable: React.FC<PedidosTableProps> = ({ data, isLoading, onView, onUpdate, onDelete }) => {
   const navigate = useNavigate();
+  const [popupConfirmOpen, setPopupConfirmOpen] = useState(false);
+  const [pedidoToDelete, setPedidoToDelete] = useState<{ id: number; nombre: string } | null>(null);
   
   const handleUpdate = (pedidoActualizado: any) => {
     onUpdate(pedidoActualizado);
+  };
+
+  const handleDeleteClick = (id: number, nombreCliente: string) => {
+    setPedidoToDelete({ id, nombre: nombreCliente });
+    setPopupConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (pedidoToDelete) {
+      onDelete(pedidoToDelete.id);
+      setPopupConfirmOpen(false);
+      setPedidoToDelete(null);
+    }
+  };
+
+  const cancelDelete = () => {
+    setPopupConfirmOpen(false);
+    setPedidoToDelete(null);
   };
 
   if (isLoading) return <div className="p-6 text-center">Cargando pedidos...</div>;
@@ -60,6 +82,13 @@ const PedidosTable: React.FC<PedidosTableProps> = ({ data, isLoading, onView, on
                   title="Modificar"
                 >
                   <Edit size={20} />
+                </button>
+                <button
+                  onClick={() => handleDeleteClick(pedido.idPedido, pedido.nombreCliente)}
+                  className="p-2 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 transition"
+                  title="Eliminar"
+                >
+                  <Trash2 size={20} />
                 </button>
               </div>
             </div>
@@ -245,6 +274,14 @@ const PedidosTable: React.FC<PedidosTableProps> = ({ data, isLoading, onView, on
                     >
                       <Edit size={16} />
                     </button>
+
+                    <button
+                      onClick={() => handleDeleteClick(pedido.idPedido, pedido.nombreCliente)}
+                      className="flex items-center gap-1 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors"
+                      title="Eliminar"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -252,6 +289,16 @@ const PedidosTable: React.FC<PedidosTableProps> = ({ data, isLoading, onView, on
           </tbody>
         </table>
       </div>
+
+      {/* Popup de confirmación de eliminación */}
+      <PopupConfirm
+        isOpen={popupConfirmOpen}
+        title="Eliminar Pedido"
+        message="¿Está seguro de que desea eliminar este pedido? Esta acción no se puede deshacer."
+        itemName={pedidoToDelete?.nombre}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
     </>
   );
 };
