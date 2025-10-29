@@ -53,13 +53,25 @@ const CrearPedido: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('🎯 [CrearPedido] handleSubmit iniciado');
+    console.log('📊 [CrearPedido] Estado actual:', {
+      nombreCliente,
+      telefonoCliente,
+      fecha,
+      nota,
+      metodoDePago,
+      cantidadProductos: productos.length
+    });
+    
     if (productos.length === 0) {
+      console.warn('⚠️ [CrearPedido] No hay productos, mostrando alerta');
       alert('Debe agregar al menos un producto al pedido');
       return;
     }
 
+    console.log('📦 [CrearPedido] Productos a enviar:', JSON.stringify(productos, null, 2));
+
     const pedidoDTO: CrearPedidoDTO = {
-      idCliente: 0,
       nombreCliente: nombreCliente,
       telefonoCliente: telefonoCliente,
       fecha: fecha,
@@ -82,11 +94,21 @@ const CrearPedido: React.FC = () => {
       }))
     };
     
+    console.log('📝 [CrearPedido] DTO construido:', JSON.stringify(pedidoDTO, null, 2));
+    console.log('🚀 [CrearPedido] Llamando a crearPedidoMutation.mutate()');
+    
     crearPedidoMutation.mutate(pedidoDTO, {
       onSuccess: () => {
+        console.log('✅ [CrearPedido] Pedido creado exitosamente, navegando a /pedidos');
         navigate('/pedidos');
+      },
+      onError: (error: any) => {
+        console.error('❌ [CrearPedido] Error en onError callback:', error);
+        console.error('❌ [CrearPedido] Error response:', error.response?.data);
       }
     });
+    
+    console.log('🔄 [CrearPedido] Mutation enviada, esperando respuesta...');
   };
 
   const handleAgregarProducto = (producto: ProductoPedido) => {

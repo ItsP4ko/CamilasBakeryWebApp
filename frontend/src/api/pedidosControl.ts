@@ -82,9 +82,10 @@ export const agregarDetallePedido = async (
   pedidoId: number,
   data: { idMedida: number; cantidad: number }
 ) => {
+  const payload = mapAgregarDetalle(data);
   const response = await httpClient.post(
     `/api/PedidosControl/${pedidoId}/detalle`,
-    mapAgregarDetalle(data)
+    payload
   );
   return response.data;
 };
@@ -97,9 +98,10 @@ export const modificarDetallePedido = async (
   detallePedidoId: number,
   data: { cantidad: number }
 ) => {
+  const payload = mapModificarDetalle(data);
   const response = await httpClient.patch(
     `/api/PedidosControl/detalle/${detallePedidoId}`,
-    mapModificarDetalle(data)
+    payload
   );
   return response.data;
 };

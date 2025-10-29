@@ -72,7 +72,7 @@ export interface Extra {
   }
   
   export interface CrearPedidoDTO {
-    idCliente: number;
+    idCliente?: number;
     nombreCliente: string;
     telefonoCliente: string;
     fecha: string;

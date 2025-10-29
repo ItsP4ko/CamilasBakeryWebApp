@@ -32,7 +32,8 @@ export function useCrearPedido() {
       toast.success('Pedido creado exitosamente');
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Error al crear el pedido');
+      const errorMessage = error.response?.data?.message || 'Error al crear el pedido';
+      toast.error(errorMessage);
     },
   });
 }

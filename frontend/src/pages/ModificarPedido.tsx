@@ -203,7 +203,7 @@ const ModificarPedido: React.FC = () => {
             onClick={() => navigate('/pedidos')}
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
-            <ArrowLeft className="w-6 h-6" />
+            <ArrowLeft className="w-6 h-6" />   
           </button>
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
@@ -255,7 +255,7 @@ const ModificarPedido: React.FC = () => {
                       {detalle.nombreTorta} - {detalle.tamanoMedida}
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Precio base: ${(detalle.precioMomentoMedida / detalle.cantidad)?.toLocaleString('es-AR')} x {detalle.cantidad}
+                     Subtotal unitario: ${(detalle.totalProducto / detalle.cantidad)?.toLocaleString('es-AR')} x {detalle.cantidad}
                     </p>
                   </div>
                 </div>

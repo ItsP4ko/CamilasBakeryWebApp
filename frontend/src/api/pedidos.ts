@@ -200,7 +200,7 @@ export const crearPedido = async (pedido: CrearPedidoDTO): Promise<Pedido> => {
       }))
     }))
   };
-
+  
   const response = await api.post('/api/Pedidos', pedidoBackend);
   return mapPedidoFromBackend(response.data);
 };
