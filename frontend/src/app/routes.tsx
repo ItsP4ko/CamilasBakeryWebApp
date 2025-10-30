@@ -13,6 +13,11 @@ const Tortas = lazy(() => import('@/pages/Tortas'));
 const Ingredientes = lazy(() => import('@/pages/Ingredientes'));
 const CostoExtra = lazy(() => import('@/pages/CostoExtra'));
 const Reportes = lazy(() => import('@/pages/Reportes'));
+const ReportesPedidos = lazy(() => import('@/pages/ReportesPedidos'));
+const ReportesFinanzas = lazy(() => import('@/pages/ReportesFinanzas'));
+const ReportesTortas = lazy(() => import('@/pages/ReportesTortas'));
+const ReportesIngredientes = lazy(() => import('@/pages/ReportesIngredientes'));
+const ReportesCostosExtras = lazy(() => import('@/pages/ReportesCostosExtras'));
 const Pedidos = lazy(() => import('@/pages/Pedidos'));
 const CrearPedido = lazy(() => import('@/pages/CrearPedido'));
 const ModificarPedido = lazy(() => import('@/pages/ModificarPedido'));
@@ -89,6 +94,46 @@ export const router = createBrowserRouter([
         element: (
           <SuspenseWrapper>
             <Reportes />
+          </SuspenseWrapper>
+        )
+      },
+      { 
+        path: 'reportes/pedidos', 
+        element: (
+          <SuspenseWrapper>
+            <ReportesPedidos />
+          </SuspenseWrapper>
+        )
+      },
+      { 
+        path: 'reportes/finanzas', 
+        element: (
+          <SuspenseWrapper>
+            <ReportesFinanzas />
+          </SuspenseWrapper>
+        )
+      },
+      { 
+        path: 'reportes/tortas', 
+        element: (
+          <SuspenseWrapper>
+            <ReportesTortas />
+          </SuspenseWrapper>
+        )
+      },
+      { 
+        path: 'reportes/ingredientes', 
+        element: (
+          <SuspenseWrapper>
+            <ReportesIngredientes />
+          </SuspenseWrapper>
+        )
+      },
+      { 
+        path: 'reportes/costosExtras', 
+        element: (
+          <SuspenseWrapper>
+            <ReportesCostosExtras />
           </SuspenseWrapper>
         )
       },

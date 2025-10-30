@@ -29,6 +29,13 @@
     --primary-800: 31 41 55;
     --primary-900: 17 24 39;
     
+    /* Variables para react-select */
+    --select-bg: white;
+    --select-hover: #fce7f3;
+    --select-hover-text: #831843;
+    --text-color: black;
+    --placeholder-color: #9ca3af;
+    
     /* Variables HSL del sistema shadcn */
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
@@ -69,6 +76,13 @@
     --primary-700: 229 231 235;
     --primary-800: 243 244 246;
     --primary-900: 249 250 251;
+    
+    /* Variables para react-select en modo oscuro */
+    --select-bg: rgb(31 41 55);
+    --select-hover: rgb(55 65 81);
+    --select-hover-text: #fce7f3;
+    --text-color: white;
+    --placeholder-color: #6b7280;
     
     /* Variables HSL del sistema shadcn para dark */
     --background: 240 10% 3.9%;

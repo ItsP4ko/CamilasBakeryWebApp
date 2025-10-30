@@ -19,10 +19,11 @@ export const navigationItems: NavigationItem[] = [
     href: '/reportes',
     icon: BarChart3,
     children: [
+      { name: 'Pedidos', href: '/reportes/pedidos' },
+      { name: 'Finanzas', href: '/reportes/finanzas' },
       { name: 'Tortas', href: '/reportes/tortas' },
       { name: 'Ingredientes', href: '/reportes/ingredientes' },
-      { name: 'Costos Extras', href: '/reportes/costosExtras' },
-      { name: 'Pedidos', href: '/reportes/pedidos' }
+      { name: 'Costos Extras', href: '/reportes/costosExtras' }
     ]
   }
 ];
