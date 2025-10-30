@@ -105,12 +105,6 @@ const PedidosDashboard: React.FC = () => {
     }
   }, [pageNumber, totalPages, pageSize, searchTerm, activeFilters, queryClient, hasActiveFilters]);
 
-  // ✅ Memoización: Evita recalcular en cada render
-  const pedidosEntregados = useMemo(
-    () => list.filter((p: PedidoResumen) => ["entregado"].includes((p.estado ?? "").toLowerCase())).length,
-    [list]
-  );
-
   const handleApplyFilters = (filters: FiltersData) => {
     setActiveFilters(filters);
     setPageNumber(1); // Reset a la página 1 cuando se aplican filtros
@@ -155,7 +149,7 @@ const PedidosDashboard: React.FC = () => {
         />
         <StatsCard
           label="Pedidos entregados"
-          value={pedidosEntregados}
+          value={metrics?.pedidosEntregados ?? "0"}
           icon={CheckCircle}
         />
         <StatsCard

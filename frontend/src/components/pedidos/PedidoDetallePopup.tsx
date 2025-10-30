@@ -1,5 +1,6 @@
 import React from "react";
 import { usePedidoCompleto } from "@/hooks/usePedidos";
+import { generarPDFPedido } from "@/utils/pdfGenerator";
 
 interface PedidoDetallePopupProps {
   id: number;
@@ -9,6 +10,11 @@ interface PedidoDetallePopupProps {
 const PedidoDetallePopup: React.FC<PedidoDetallePopupProps> = ({ id, onClose }) => {
   const { data: pedido, isLoading, error } = usePedidoCompleto(id);
   
+  const handleGenerarPDF = () => {
+    if (pedido) {
+      generarPDFPedido(pedido);
+    }
+  };
 
   if (isLoading)
     return (
@@ -91,7 +97,7 @@ const PedidoDetallePopup: React.FC<PedidoDetallePopupProps> = ({ id, onClose }) 
           </button>
 
           <button
-            onClick={onClose}
+            onClick={handleGenerarPDF}
             className="w-full sm:w-auto bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600"
           >
             Enviar

@@ -92,29 +92,26 @@ export const useUpdatePedido = () => {
       console.warn("⚠️ No se pudo actualizar el pedido. Reintentando...");
     },
 
-    // ✅ Éxito: Solo invalida para sincronizar datos del servidor
-    onSuccess: () => {
+    // ✅ Éxito: Refetch inmediato del backend
+    onSuccess: async () => {
       console.log("✅ Pedido actualizado correctamente");
+      
+      // Fuerza refetch inmediato desde el backend (ignora cache)
+      await queryClient.refetchQueries({ 
+        queryKey: ["dashboardMetrics"],
+        type: 'active'
+      });
+      
+      // También refresca pedidos
+      await queryClient.refetchQueries({ 
+        queryKey: ["pedidos"],
+        type: 'active'
+      });
     },
 
-    // 🔄 Siempre refresca después para sincronizar con el servidor (en background)
+    // 🔄 No hace nada adicional en settled
     onSettled: () => {
-      // Invalidar sin refetch inmediato para que se actualice en el siguiente render
-      queryClient.invalidateQueries({ 
-        queryKey: ["pedidos"],
-        refetchType: 'none' // No refetch inmediato, solo marca como stale
-      });
-      
-      queryClient.invalidateQueries({ 
-        queryKey: ["dashboardMetrics"],
-        refetchType: 'none'
-      });
-      
-      // Refetch en background después de 500ms
-      setTimeout(() => {
-        queryClient.refetchQueries({ queryKey: ["pedidos"] });
-        queryClient.refetchQueries({ queryKey: ["dashboardMetrics"] });
-      }, 500);
+      // El refetch ya se hizo en onSuccess
     },
   });
 };

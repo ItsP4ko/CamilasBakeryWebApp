@@ -308,3 +308,30 @@ export const getGananciaMensual = async (): Promise<number> => {
     return 0;
   }
 };
+
+// Contar pedidos entregados del mes
+export const getPedidosEntregadosMensual = async (): Promise<number> => {
+  try {
+    const hoy = new Date();
+
+    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1)
+      .toISOString()
+      .split("T")[0];
+    const finMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0)
+      .toISOString()
+      .split("T")[0];
+
+    const response = await api.get(`/api/Pedidos/FechaRango/${inicioMes}/${finMes}`);
+
+    const pedidosArray = Array.isArray(response.data) ? response.data : [];
+
+    const cantidadEntregados = pedidosArray
+      .filter((pedido: any) => pedido.Estado?.toLowerCase() === "entregado")
+      .length;
+
+    return cantidadEntregados; 
+  } catch (error) {
+    console.error("Error al contar pedidos entregados:", error);
+    return 0;
+  }
+};
