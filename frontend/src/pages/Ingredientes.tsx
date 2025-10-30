@@ -24,14 +24,14 @@ const Ingredientes: React.FC = () => {
 
   // Crear nuevo ingrediente
   const handleCreate = (formData: any) => {
-  
+    // ✅ Cerrar el popup INMEDIATAMENTE (optimistic UI)
+    setPopupCreateOpen(false);
+    
+    // ⏳ La mutación ocurre en segundo plano con optimistic update
     mutate(formData, {
-      onSuccess: () => {
-        setPopupCreateOpen(false);
-      },
       onError: (err: any) => {
         console.error("Error al crear ingrediente:");
-        alert("Error al crear ingrediente. Verifica los datos.");
+        // El rollback automático ya está manejado en el hook
       },
     });
   };
@@ -40,15 +40,17 @@ const Ingredientes: React.FC = () => {
   const handleUpdate = (formData: any) => {
     if (!selectedItem) return;
     
+    // ✅ Cerrar el popup INMEDIATAMENTE (optimistic UI)
+    setPopupEditOpen(false);
+    setSelectedItem(null);
+    
+    // ⏳ La mutación ocurre en segundo plano con optimistic update
     updateMutate(
       { id: selectedItem.idIngrediente, data: formData },
       {
-        onSuccess: () => {
-          setPopupEditOpen(false);
-          setSelectedItem(null);
-        },
         onError: (err: any) => {
           console.error("Error al actualizar ingrediente:");
+          // El rollback automático ya está manejado en el hook
         },
       }
     );
@@ -63,16 +65,16 @@ const Ingredientes: React.FC = () => {
   const confirmDelete = () => {
     if (!itemToDelete) return;
     
-    deleteMutate(itemToDelete.id, {
-      onSuccess: () => {
-        setPopupConfirmOpen(false);
-        setItemToDelete(null);
-      },
+    // ✅ Cerrar el popup INMEDIATAMENTE (optimistic UI)
+    setPopupConfirmOpen(false);
+    const itemId = itemToDelete.id;
+    setItemToDelete(null);
+    
+    // ⏳ La mutación ocurre en segundo plano con optimistic update
+    deleteMutate(itemId, {
       onError: (err: any) => {
         console.error("Error al eliminar ingrediente:");
-        alert("Error al eliminar el ingrediente");
-        setPopupConfirmOpen(false);
-        setItemToDelete(null);
+        // El rollback automático ya está manejado en el hook
       },
     });
   };

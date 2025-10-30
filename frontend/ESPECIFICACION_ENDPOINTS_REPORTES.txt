@@ -1,0 +1,725 @@
+================================================================================
+    ESPECIFICACIÓN COMPLETA DE ENDPOINTS PARA REPORTES DE PEDIDOS
+================================================================================
+
+📋 RESUMEN EJECUTIVO
+-------------------
+Este documento especifica los 8 endpoints necesarios para implementar el sistema
+completo de reportes de pedidos en CamilasBakery.
+
+Controller: ReportesController.cs
+Ruta base: /api/Reportes/
+
+================================================================================
+
+1️⃣ DASHBOARD GENERAL - KPIs PRINCIPALES
+========================================
+
+ENDPOINT:
+---------
+[HttpGet("Dashboard")]
+public async Task<ActionResult<DashboardReporteDTO>> GetDashboard(
+    [FromQuery] DateTime fechaInicio,
+    [FromQuery] DateTime fechaFin)
+
+PROPÓSITO:
+----------
+Retorna todos los KPIs principales para el dashboard:
+- Total de pedidos del período
+- Ingresos totales
+- Ganancia total
+- Tasa de conversión (completados vs cancelados)
+- Ticket promedio
+- Comparativa con mes anterior
+
+RESPUESTA JSON:
+---------------
+{
+  "totalPedidos": 145,
+  "ingresosTotales": 450000.50,
+  "gananciaTotales": 280000.30,
+  "tasaConversion": 87.5,
+  "ticketPromedio": 3103.45,
+  "pedidosCompletados": 127,
+  "pedidosCancelados": 18,
+  "comparativaMesAnterior": {
+    "ingresosMesAnterior": 380000.00,
+    "gananciasMesAnterior": 230000.00,
+    "crecimientoIngresos": 18.42,
+    "crecimientoGanancias": 21.74
+  }
+}
+
+DTO C#:
+-------
+public class DashboardReporteDTO
+{
+    public int TotalPedidos { get; set; }
+    public decimal IngresosTotales { get; set; }
+    public decimal GananciaTotales { get; set; }
+    public decimal TasaConversion { get; set; } // % completados vs total
+    public decimal TicketPromedio { get; set; }
+    public int PedidosCompletados { get; set; }
+    public int PedidosCancelados { get; set; }
+    public ComparativaMesAnteriorDTO? ComparativaMesAnterior { get; set; }
+}
+
+public class ComparativaMesAnteriorDTO
+{
+    public decimal IngresosMesAnterior { get; set; }
+    public decimal GananciasMesAnterior { get; set; }
+    public decimal CrecimientoIngresos { get; set; } // % crecimiento
+    public decimal CrecimientoGanancias { get; set; } // % crecimiento
+}
+
+CÁLCULOS NECESARIOS:
+--------------------
+- TasaConversion = (PedidosCompletados / TotalPedidos) * 100
+- TicketPromedio = IngresosTotales / TotalPedidos
+- CrecimientoIngresos = ((IngresosMesActual - IngresosMesAnterior) / IngresosMesAnterior) * 100
+
+EJEMPLO QUERY LINQ:
+-------------------
+var pedidosEnRango = await _context.Pedidos
+    .Where(p => p.Fecha >= fechaInicio && p.Fecha <= fechaFin)
+    .ToListAsync();
+
+var totalPedidos = pedidosEnRango.Count;
+var ingresosTotales = pedidosEnRango.Sum(p => p.Total);
+var gananciaTotales = pedidosEnRango.Sum(p => p.Ganancia);
+var completados = pedidosEnRango.Count(p => p.Estado == "Entregado" || p.Estado == "Completado");
+var cancelados = pedidosEnRango.Count(p => p.Estado == "Cancelado");
+
+
+================================================================================
+
+2️⃣ VENTAS POR PERÍODO - LÍNEA TEMPORAL
+========================================
+
+ENDPOINT:
+---------
+[HttpGet("VentasPorPeriodo")]
+public async Task<ActionResult<List<VentaPorPeriodoDTO>>> GetVentasPorPeriodo(
+    [FromQuery] DateTime fechaInicio,
+    [FromQuery] DateTime fechaFin,
+    [FromQuery] string agrupacion = "dia") // "dia", "semana", "mes"
+
+PROPÓSITO:
+----------
+Retorna datos para gráfico de línea temporal de ventas agrupados por día/semana/mes.
+Usado para visualizar tendencias de ventas e ingresos a lo largo del tiempo.
+
+RESPUESTA JSON:
+---------------
+[
+  {
+    "fecha": "2025-10-01",
+    "periodo": "1 Oct",
+    "totalVentas": 15000.00,
+    "totalGanancias": 9500.00,
+    "cantidadPedidos": 12
+  },
+  {
+    "fecha": "2025-10-02",
+    "periodo": "2 Oct",
+    "totalVentas": 18000.00,
+    "totalGanancias": 11400.00,
+    "cantidadPedidos": 15
+  }
+]
+
+DTO C#:
+-------
+public class VentaPorPeriodoDTO
+{
+    public string Fecha { get; set; } // ISO format "2025-10-01"
+    public string Periodo { get; set; } // Label para mostrar "1 Oct", "Semana 1", "Octubre"
+    public decimal TotalVentas { get; set; }
+    public decimal TotalGanancias { get; set; }
+    public int CantidadPedidos { get; set; }
+}
+
+LÓGICA DE AGRUPACIÓN:
+---------------------
+- "dia": Agrupar por Fecha (p.Fecha.Date)
+- "semana": Agrupar por número de semana del año
+- "mes": Agrupar por mes (p.Fecha.Month, p.Fecha.Year)
+
+EJEMPLO QUERY LINQ (Día):
+--------------------------
+var ventasPorDia = await _context.Pedidos
+    .Where(p => p.Fecha >= fechaInicio && p.Fecha <= fechaFin)
+    .GroupBy(p => p.Fecha.Date)
+    .Select(g => new VentaPorPeriodoDTO {
+        Fecha = g.Key.ToString("yyyy-MM-dd"),
+        Periodo = g.Key.ToString("d MMM", CultureInfo.GetCultureInfo("es-ES")),
+        TotalVentas = g.Sum(p => p.Total),
+        TotalGanancias = g.Sum(p => p.Ganancia),
+        CantidadPedidos = g.Count()
+    })
+    .OrderBy(v => v.Fecha)
+    .ToListAsync();
+
+
+================================================================================
+
+3️⃣ TENDENCIA DE GANANCIAS
+===========================
+
+ENDPOINT:
+---------
+[HttpGet("TendenciaGanancias")]
+public async Task<ActionResult<List<TendenciaGananciaDTO>>> GetTendenciaGanancias(
+    [FromQuery] DateTime fechaInicio,
+    [FromQuery] DateTime fechaFin,
+    [FromQuery] string agrupacion = "mes") // "dia", "semana", "mes"
+
+PROPÓSITO:
+----------
+Retorna datos para visualizar el crecimiento de ganancias con porcentajes de 
+crecimiento respecto al período anterior. Ideal para gráfico de línea.
+
+RESPUESTA JSON:
+---------------
+[
+  {
+    "periodo": "Enero 2025",
+    "fecha": "2025-01-01",
+    "ganancia": 120000.00,
+    "porcentajeCrecimiento": 15.5
+  },
+  {
+    "periodo": "Febrero 2025",
+    "fecha": "2025-02-01",
+    "ganancia": 138000.00,
+    "porcentajeCrecimiento": 15.0
+  }
+]
+
+DTO C#:
+-------
+public class TendenciaGananciaDTO
+{
+    public string Periodo { get; set; }
+    public string Fecha { get; set; }
+    public decimal Ganancia { get; set; }
+    public decimal PorcentajeCrecimiento { get; set; } // Respecto al período anterior
+}
+
+CÁLCULO CRECIMIENTO:
+--------------------
+PorcentajeCrecimiento = ((GananciaActual - GananciaAnterior) / GananciaAnterior) * 100
+
+
+================================================================================
+
+4️⃣ TOP TORTAS MÁS VENDIDAS
+============================
+
+ENDPOINT:
+---------
+[HttpGet("TopTortas")]
+public async Task<ActionResult<List<TortaRankingDTO>>> GetTopTortas(
+    [FromQuery] DateTime fechaInicio,
+    [FromQuery] DateTime fechaFin,
+    [FromQuery] int top = 5,
+    [FromQuery] string ordenarPor = "cantidad") // "cantidad" o "ganancia"
+
+PROPÓSITO:
+----------
+Retorna las tortas más vendidas ordenadas por cantidad o por ganancia.
+Para gráfico de barras horizontales.
+
+RESPUESTA JSON:
+---------------
+[
+  {
+    "idTorta": 1,
+    "nombreTorta": "Chocotorta",
+    "cantidadVendida": 45,
+    "totalIngresos": 135000.00,
+    "totalGanancias": 85500.00,
+    "porcentajeDelTotal": 25.5
+  },
+  {
+    "idTorta": 3,
+    "nombreTorta": "Rogel",
+    "cantidadVendida": 38,
+    "totalIngresos": 114000.00,
+    "totalGanancias": 72200.00,
+    "porcentajeDelTotal": 21.6
+  }
+]
+
+DTO C#:
+-------
+public class TortaRankingDTO
+{
+    public int IdTorta { get; set; }
+    public string NombreTorta { get; set; }
+    public int CantidadVendida { get; set; }
+    public decimal TotalIngresos { get; set; }
+    public decimal TotalGanancias { get; set; }
+    public decimal PorcentajeDelTotal { get; set; }
+}
+
+EJEMPLO QUERY LINQ:
+-------------------
+var topTortas = await _context.DetallePedidos
+    .Include(dp => dp.IdPedidoNavigation)
+    .Include(dp => dp.IdMedidaNavigation)
+        .ThenInclude(m => m.IdTortaNavigation)
+    .Where(dp => dp.IdPedidoNavigation.Fecha >= fechaInicio 
+              && dp.IdPedidoNavigation.Fecha <= fechaFin)
+    .GroupBy(dp => new { 
+        IdTorta = dp.IdMedidaNavigation.IdTorta, 
+        NombreTorta = dp.IdMedidaNavigation.IdTortaNavigation.Nombre 
+    })
+    .Select(g => new TortaRankingDTO {
+        IdTorta = g.Key.IdTorta,
+        NombreTorta = g.Key.NombreTorta,
+        CantidadVendida = g.Sum(dp => dp.Cantidad),
+        TotalIngresos = g.Sum(dp => dp.PrecioMomento * dp.Cantidad),
+        TotalGanancias = g.Sum(dp => dp.IdPedidoNavigation.Ganancia) // Calcular proporcionalmente
+    })
+    .OrderByDescending(t => ordenarPor == "cantidad" ? t.CantidadVendida : (int)t.TotalGanancias)
+    .Take(top)
+    .ToListAsync();
+
+
+================================================================================
+
+5️⃣ TENDENCIA MENSUAL DEL AÑO
+==============================
+
+ENDPOINT:
+---------
+[HttpGet("TendenciaMensual")]
+public async Task<ActionResult<List<TendenciaMensualDTO>>> GetTendenciaMensual(
+    [FromQuery] int año = 2025)
+
+PROPÓSITO:
+----------
+Retorna pedidos agrupados por cada mes del año (12 meses).
+Útil para visualizar estacionalidad y patrones de ventas anuales.
+
+RESPUESTA JSON:
+---------------
+[
+  {
+    "mes": 1,
+    "nombreMes": "Enero",
+    "cantidadPedidos": 42,
+    "totalVentas": 126000.00,
+    "totalGanancias": 79800.00
+  },
+  {
+    "mes": 2,
+    "nombreMes": "Febrero",
+    "cantidadPedidos": 38,
+    "totalVentas": 114000.00,
+    "totalGanancias": 72200.00
+  }
+  // ... hasta mes 12
+]
+
+DTO C#:
+-------
+public class TendenciaMensualDTO
+{
+    public int Mes { get; set; } // 1-12
+    public string NombreMes { get; set; } // "Enero", "Febrero", etc.
+    public int CantidadPedidos { get; set; }
+    public decimal TotalVentas { get; set; }
+    public decimal TotalGanancias { get; set; }
+}
+
+EJEMPLO QUERY LINQ:
+-------------------
+var mesesDelAño = new[] { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                          "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" };
+
+var tendenciaMensual = await _context.Pedidos
+    .Where(p => p.Fecha.Year == año)
+    .GroupBy(p => p.Fecha.Month)
+    .Select(g => new TendenciaMensualDTO {
+        Mes = g.Key,
+        NombreMes = mesesDelAño[g.Key - 1],
+        CantidadPedidos = g.Count(),
+        TotalVentas = g.Sum(p => p.Total),
+        TotalGanancias = g.Sum(p => p.Ganancia)
+    })
+    .OrderBy(t => t.Mes)
+    .ToListAsync();
+
+
+================================================================================
+
+6️⃣ TOP CLIENTES
+=================
+
+ENDPOINT:
+---------
+[HttpGet("TopClientes")]
+public async Task<ActionResult<List<ClienteRankingDTO>>> GetTopClientes(
+    [FromQuery] DateTime fechaInicio,
+    [FromQuery] DateTime fechaFin,
+    [FromQuery] int top = 10)
+
+PROPÓSITO:
+----------
+Retorna los clientes que más compran ordenados por total gastado o cantidad de pedidos.
+Útil para estrategias de fidelización y marketing.
+
+RESPUESTA JSON:
+---------------
+[
+  {
+    "idCliente": 5,
+    "nombreCliente": "María García",
+    "telefonoCliente": "1234567890",
+    "totalPedidos": 18,
+    "totalGastado": 54000.00,
+    "ticketPromedio": 3000.00,
+    "ultimaCompra": "2025-10-28"
+  },
+  {
+    "idCliente": 12,
+    "nombreCliente": "Juan Pérez",
+    "telefonoCliente": "0987654321",
+    "totalPedidos": 15,
+    "totalGastado": 48000.00,
+    "ticketPromedio": 3200.00,
+    "ultimaCompra": "2025-10-25"
+  }
+]
+
+DTO C#:
+-------
+public class ClienteRankingDTO
+{
+    public int? IdCliente { get; set; }
+    public string NombreCliente { get; set; }
+    public string? TelefonoCliente { get; set; }
+    public int TotalPedidos { get; set; }
+    public decimal TotalGastado { get; set; }
+    public decimal TicketPromedio { get; set; }
+    public string UltimaCompra { get; set; } // Fecha ISO "2025-10-28"
+}
+
+EJEMPLO QUERY LINQ:
+-------------------
+var topClientes = await _context.Pedidos
+    .Where(p => p.Fecha >= fechaInicio && p.Fecha <= fechaFin)
+    .GroupBy(p => new { 
+        p.IdCliente, 
+        p.NombreCliente, 
+        p.TelefonoCliente 
+    })
+    .Select(g => new ClienteRankingDTO {
+        IdCliente = g.Key.IdCliente,
+        NombreCliente = g.Key.NombreCliente,
+        TelefonoCliente = g.Key.TelefonoCliente,
+        TotalPedidos = g.Count(),
+        TotalGastado = g.Sum(p => p.Total),
+        TicketPromedio = g.Average(p => p.Total),
+        UltimaCompra = g.Max(p => p.Fecha).ToString("yyyy-MM-dd")
+    })
+    .OrderByDescending(c => c.TotalGastado)
+    .Take(top)
+    .ToListAsync();
+
+
+================================================================================
+
+7️⃣ TORTAS MÁS RENTABLES
+=========================
+
+ENDPOINT:
+---------
+[HttpGet("TortasRentables")]
+public async Task<ActionResult<List<TortaRentabilidadDTO>>> GetTortasRentables(
+    [FromQuery] DateTime fechaInicio,
+    [FromQuery] DateTime fechaFin,
+    [FromQuery] int top = 10)
+
+PROPÓSITO:
+----------
+Retorna tortas ordenadas por rentabilidad (margen de ganancia).
+Muestra qué productos generan mayor ganancia por unidad vendida.
+
+RESPUESTA JSON:
+---------------
+[
+  {
+    "idTorta": 3,
+    "nombreTorta": "Rogel",
+    "cantidadVendida": 38,
+    "totalIngresos": 114000.00,
+    "totalGanancias": 72200.00,
+    "margenGanancia": 63.33,
+    "gananciaPorUnidad": 1900.00
+  },
+  {
+    "idTorta": 1,
+    "nombreTorta": "Chocotorta",
+    "cantidadVendida": 45,
+    "totalIngresos": 135000.00,
+    "totalGanancias": 80000.00,
+    "margenGanancia": 59.26,
+    "gananciaPorUnidad": 1777.78
+  }
+]
+
+DTO C#:
+-------
+public class TortaRentabilidadDTO
+{
+    public int IdTorta { get; set; }
+    public string NombreTorta { get; set; }
+    public int CantidadVendida { get; set; }
+    public decimal TotalIngresos { get; set; }
+    public decimal TotalGanancias { get; set; }
+    public decimal MargenGanancia { get; set; } // % (Ganancia/Ingresos * 100)
+    public decimal GananciaPorUnidad { get; set; }
+}
+
+CÁLCULOS:
+---------
+- MargenGanancia = (TotalGanancias / TotalIngresos) * 100
+- GananciaPorUnidad = TotalGanancias / CantidadVendida
+
+
+================================================================================
+
+8️⃣ MEDIDAS MÁS POPULARES POR TORTA
+====================================
+
+ENDPOINT:
+---------
+[HttpGet("MedidasPopulares")]
+public async Task<ActionResult<List<MedidaPopularDTO>>> GetMedidasPopulares(
+    [FromQuery] int? idTorta = null, // Si es null, muestra todas
+    [FromQuery] DateTime? fechaInicio = null,
+    [FromQuery] DateTime? fechaFin = null)
+
+PROPÓSITO:
+----------
+Retorna las medidas (tamaños) más vendidas para cada torta.
+Útil para optimizar producción y planificar inventario.
+
+RESPUESTA JSON:
+---------------
+[
+  {
+    "idTorta": 1,
+    "nombreTorta": "Chocotorta",
+    "idMedida": 2,
+    "tamanoMedida": "1 kg",
+    "cantidadVendida": 28,
+    "porcentajeDelTotal": 62.22
+  },
+  {
+    "idTorta": 1,
+    "nombreTorta": "Chocotorta",
+    "idMedida": 3,
+    "tamanoMedida": "2 kg",
+    "cantidadVendida": 17,
+    "porcentajeDelTotal": 37.78
+  }
+]
+
+DTO C#:
+-------
+public class MedidaPopularDTO
+{
+    public int IdTorta { get; set; }
+    public string NombreTorta { get; set; }
+    public int IdMedida { get; set; }
+    public string TamanoMedida { get; set; } // "1 kg", "2 kg", etc.
+    public int CantidadVendida { get; set; }
+    public decimal PorcentajeDelTotal { get; set; } // % de esa torta
+}
+
+EJEMPLO QUERY LINQ:
+-------------------
+var query = _context.DetallePedidos
+    .Include(dp => dp.IdPedidoNavigation)
+    .Include(dp => dp.IdMedidaNavigation)
+        .ThenInclude(m => m.IdTortaNavigation)
+    .AsQueryable();
+
+if (idTorta.HasValue)
+    query = query.Where(dp => dp.IdMedidaNavigation.IdTorta == idTorta.Value);
+
+if (fechaInicio.HasValue)
+    query = query.Where(dp => dp.IdPedidoNavigation.Fecha >= fechaInicio.Value);
+
+if (fechaFin.HasValue)
+    query = query.Where(dp => dp.IdPedidoNavigation.Fecha <= fechaFin.Value);
+
+var medidasPopulares = await query
+    .GroupBy(dp => new { 
+        IdTorta = dp.IdMedidaNavigation.IdTorta,
+        NombreTorta = dp.IdMedidaNavigation.IdTortaNavigation.Nombre,
+        IdMedida = dp.IdMedida,
+        TamanoMedida = dp.IdMedidaNavigation.Tamano
+    })
+    .Select(g => new MedidaPopularDTO {
+        IdTorta = g.Key.IdTorta,
+        NombreTorta = g.Key.NombreTorta,
+        IdMedida = g.Key.IdMedida,
+        TamanoMedida = g.Key.TamanoMedida,
+        CantidadVendida = g.Sum(dp => dp.Cantidad),
+        // PorcentajeDelTotal se calcula después
+    })
+    .OrderByDescending(m => m.CantidadVendida)
+    .ToListAsync();
+
+
+================================================================================
+
+📊 RESUMEN DE TODOS LOS ENDPOINTS
+==================================
+
+| # | Endpoint                        | Propósito                                    |
+|---|---------------------------------|----------------------------------------------|
+| 1 | GET /api/Reportes/Dashboard     | KPIs principales + comparativa               |
+| 2 | GET /api/Reportes/VentasPorPeriodo | Gráfico línea temporal (ventas)           |
+| 3 | GET /api/Reportes/TendenciaGanancias | Gráfico línea de ganancias             |
+| 4 | GET /api/Reportes/TopTortas     | Top 5 tortas más vendidas (barras)           |
+| 5 | GET /api/Reportes/TendenciaMensual | Pedidos por mes del año (12 meses)        |
+| 6 | GET /api/Reportes/TopClientes   | Top 10 clientes que más compran              |
+| 7 | GET /api/Reportes/TortasRentables | Tortas ordenadas por ganancia/margen       |
+| 8 | GET /api/Reportes/MedidasPopulares | Medidas más vendidas por torta            |
+
+
+================================================================================
+
+🎯 ORDEN DE IMPLEMENTACIÓN RECOMENDADO
+=======================================
+
+FASE 1 (Prioridad Alta - Empezar aquí):
+----------------------------------------
+1. ✅ Dashboard → Lo más importante, da overview completo
+2. ✅ VentasPorPeriodo → Gráfico principal de ventas
+3. ✅ TopTortas → Fácil de implementar y muy útil
+
+FASE 2 (Prioridad Media):
+--------------------------
+4. ✅ TopClientes → Importante para fidelización
+5. ✅ TendenciaMensual → Visualizar estacionalidad
+6. ✅ TortasRentables → Para decisiones de negocio
+
+FASE 3 (Prioridad Baja):
+-------------------------
+7. ✅ TendenciaGanancias → Similar a VentasPorPeriodo
+8. ✅ MedidasPopulares → Análisis más específico
+
+
+================================================================================
+
+💡 TIPS DE IMPLEMENTACIÓN
+==========================
+
+1. PERFORMANCE:
+   - Usa índices en las tablas (Fecha, IdTorta, IdCliente)
+   - Considera agregar campos calculados en la BD si es necesario
+   - Usa .AsNoTracking() cuando solo lees datos
+
+2. CACHEO:
+   - Considera cachear resultados que no cambian frecuentemente
+   - Dashboard puede cachearse por 5-15 minutos
+
+3. VALIDACIONES:
+   - Valida que fechaInicio <= fechaFin
+   - Valida que los rangos de fechas no sean muy grandes (ej. máximo 2 años)
+
+4. MANEJO DE ERRORES:
+   - Retorna respuestas apropiadas (404, 400, 500)
+   - Loguea excepciones para debugging
+
+5. TESTING:
+   - Crea datos de prueba con diferentes escenarios
+   - Verifica los cálculos de porcentajes y promedios
+
+
+================================================================================
+
+📚 DEPENDENCIAS Y NAMESPACES NECESARIOS
+========================================
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using System.Linq;
+
+// Para agrupaciones por semana
+using System.Globalization;
+CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(fecha, ...)
+
+
+================================================================================
+
+🔗 INTEGRACIÓN FRONTEND
+========================
+
+Archivo: src/api/reportes.ts
+-----------------------------
+import api from './http';
+
+export const getDashboard = async (fechaInicio: string, fechaFin: string) => {
+  const response = await api.get('/api/Reportes/Dashboard', {
+    params: { fechaInicio, fechaFin }
+  });
+  return response.data;
+};
+
+export const getVentasPorPeriodo = async (
+  fechaInicio: string, 
+  fechaFin: string, 
+  agrupacion: 'dia' | 'semana' | 'mes'
+) => {
+  const response = await api.get('/api/Reportes/VentasPorPeriodo', {
+    params: { fechaInicio, fechaFin, agrupacion }
+  });
+  return response.data;
+};
+
+// ... demás funciones
+
+
+Archivo: src/types/reportes.ts
+-------------------------------
+export interface DashboardReporte {
+  totalPedidos: number;
+  ingresosTotales: number;
+  gananciaTotales: number;
+  tasaConversion: number;
+  ticketPromedio: number;
+  pedidosCompletados: number;
+  pedidosCancelados: number;
+  comparativaMesAnterior?: ComparativaMesAnterior;
+}
+
+// ... demás interfaces
+
+
+================================================================================
+
+📝 NOTAS FINALES
+================
+
+- Este documento está diseñado para ser usado como contexto completo
+- Todos los DTOs deben ir en una carpeta DTOs/Reportes en el backend
+- El ReportesController debe estar en Controllers/ReportesController.cs
+- Considera usar AutoMapper para mapear entidades a DTOs si lo tienes configurado
+- Los cálculos de porcentajes deben manejar división por cero (0 / 0 = 0)
+
+================================================================================
+FIN DEL DOCUMENTO
+================================================================================
+
+Fecha de creación: 30 de octubre de 2025
+Autor: GitHub Copilot
+Proyecto: CamilasBakery - Sistema de Reportes de Pedidos
