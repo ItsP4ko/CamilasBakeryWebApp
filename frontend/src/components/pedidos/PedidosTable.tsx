@@ -19,7 +19,31 @@ const PedidosTable: React.FC<PedidosTableProps> = ({ data, isLoading, onView, on
   const [popupConfirmOpen, setPopupConfirmOpen] = useState(false);
   const [pedidoToDelete, setPedidoToDelete] = useState<{ id: number; nombre: string } | null>(null);
   
+  // Estado local para actualizaciones optimistas
+  const [pedidosLocales, setPedidosLocales] = useState(data);
+
+  // Sincroniza con los datos del servidor cuando cambian
+  React.useEffect(() => {
+    setPedidosLocales(data);
+  }, [data]);
+  
   const handleUpdate = (pedidoActualizado: any) => {
+    // Actualiza inmediatamente el estado local (solo los campos visibles)
+    setPedidosLocales((prevPedidos) =>
+      prevPedidos.map((p) => {
+        if (p.idPedido === pedidoActualizado.idPedido) {
+          // Solo actualiza los campos que son visibles en la UI
+          const updated = { ...p };
+          if (pedidoActualizado.fecha !== undefined) updated.fecha = pedidoActualizado.fecha;
+          if (pedidoActualizado.estado !== undefined) updated.estado = pedidoActualizado.estado;
+          if (pedidoActualizado.metodoDePago !== undefined) updated.metodoDePago = pedidoActualizado.metodoDePago;
+          return updated;
+        }
+        return p;
+      })
+    );
+    
+    // Envía al servidor en background CON los flags intactos
     onUpdate(pedidoActualizado);
   };
 
@@ -42,13 +66,13 @@ const PedidosTable: React.FC<PedidosTableProps> = ({ data, isLoading, onView, on
   };
 
   if (isLoading) return <div className="p-6 text-center">Cargando pedidos...</div>;
-  if (!data?.length) return <div className="p-6 text-center text-primary-500 dark:text-primary-400">No hay pedidos.</div>;
+  if (!pedidosLocales?.length) return <div className="p-6 text-center text-primary-500 dark:text-primary-400">No hay pedidos.</div>;
 
   return (
     <>
       {/* VISTA MÓVIL - Cards */}
       <div className="block lg:hidden space-y-4">
-        {data.map((pedido: any) => (
+        {pedidosLocales.map((pedido: any) => (
           <div 
             key={pedido.idPedido} 
             className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 space-y-3"
@@ -177,7 +201,7 @@ const PedidosTable: React.FC<PedidosTableProps> = ({ data, isLoading, onView, on
             </tr>
           </thead>
           <tbody>
-            {data.map((pedido: any) => (
+            {pedidosLocales.map((pedido: any) => (
               <tr key={pedido.idPedido} className="bg-primary-50 dark:bg-gray-800 border-t dark:border-gray-700 hover:bg-primary-100 dark:hover:bg-gray-750 transition">
                 <td className="px-6 py-2 dark:text-gray-200">{pedido.nombreCliente}</td>
 

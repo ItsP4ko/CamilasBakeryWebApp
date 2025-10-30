@@ -160,6 +160,7 @@ const TendenciaMensual: React.FC = () => {
                 <YAxis 
                   className="text-sm"
                   tick={{ fill: 'currentColor' }}
+                  domain={[0, (dataMax: number) => Math.ceil(dataMax) + 1]}
                 />
                 <Tooltip 
                   contentStyle={{ 

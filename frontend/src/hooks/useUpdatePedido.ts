@@ -48,7 +48,7 @@ export const useUpdatePedido = () => {
       // Guarda snapshot del estado anterior para rollback
       const previousQueries = queryClient.getQueriesData({ queryKey: ['pedidos'] });
 
-      // Actualiza la cache optimistamente para todas las páginas
+      // Actualiza la cache optimistamente para todas las queries de pedidos
       queryClient.setQueriesData<PagedResult<PedidoResumen>>(
         { queryKey: ['pedidos'] },
         (oldData) => {
@@ -56,16 +56,19 @@ export const useUpdatePedido = () => {
 
           return {
             ...oldData,
-            items: oldData.items.map((p) =>
-              p.idPedido === pedidoActualizado.idPedido
-                ? { 
-                    ...p, 
-                    fecha: pedidoActualizado.fecha ?? p.fecha,
-                    estado: pedidoActualizado.estado ?? p.estado,
-                    metodoDePago: pedidoActualizado.metodoDePago ?? p.metodoDePago,
-                  }
-                : p
-            ),
+            items: oldData.items.map((p) => {
+              if (p.idPedido === pedidoActualizado.idPedido) {
+                // Actualiza solo los campos que cambiaron
+                return { 
+                  ...p,
+                  ...(pedidoActualizado.fecha !== undefined && { fecha: pedidoActualizado.fecha }),
+                  ...(pedidoActualizado.estado !== undefined && { estado: pedidoActualizado.estado }),
+                  ...(pedidoActualizado.metodoDePago !== undefined && { metodoDePago: pedidoActualizado.metodoDePago }),
+                  ...(pedidoActualizado.nota !== undefined && { nota: pedidoActualizado.nota }),
+                };
+              }
+              return p;
+            }),
           };
         }
       );
@@ -84,12 +87,34 @@ export const useUpdatePedido = () => {
           queryClient.setQueryData(queryKey, data);
         });
       }
+      
+      // Notifica al usuario del error
+      console.warn("⚠️ No se pudo actualizar el pedido. Reintentando...");
     },
 
-    // 🔄 Siempre refresca después para sincronizar con el servidor
+    // ✅ Éxito: Solo invalida para sincronizar datos del servidor
+    onSuccess: () => {
+      console.log("✅ Pedido actualizado correctamente");
+    },
+
+    // 🔄 Siempre refresca después para sincronizar con el servidor (en background)
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["pedidos"] });
-      queryClient.invalidateQueries({ queryKey: ["dashboardMetrics"] });
+      // Invalidar sin refetch inmediato para que se actualice en el siguiente render
+      queryClient.invalidateQueries({ 
+        queryKey: ["pedidos"],
+        refetchType: 'none' // No refetch inmediato, solo marca como stale
+      });
+      
+      queryClient.invalidateQueries({ 
+        queryKey: ["dashboardMetrics"],
+        refetchType: 'none'
+      });
+      
+      // Refetch en background después de 500ms
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ["pedidos"] });
+        queryClient.refetchQueries({ queryKey: ["dashboardMetrics"] });
+      }, 500);
     },
   });
 };
