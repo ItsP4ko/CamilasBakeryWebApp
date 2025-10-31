@@ -130,3 +130,40 @@ export interface MedidasPopularesParams {
   fechaInicio?: string | null; // YYYY-MM-DD
   fechaFin?: string | null; // YYYY-MM-DD
 }
+
+// 9. Reporte de Stock
+export enum NivelStockEnum {
+  Critico = 0,
+  Bajo = 1,
+  Medio = 2,
+  Alto = 3,
+}
+
+export interface StockItemDto {
+  id: number;
+  nombre: string;
+  stock: number;
+  maxStock: number;
+  porcentajeStock: number;
+  nivelStock: NivelStockEnum;
+  nivelStockTexto: string;
+  tipoItem: "Ingrediente" | "CostoExtra";
+}
+
+export interface ResumenStockDto {
+  totalItems: number;
+  itemsCriticos: number;
+  itemsBajos: number;
+  itemsMedios: number;
+  itemsAltos: number;
+}
+
+export interface ReporteStockResponseDto {
+  items: StockItemDto[];
+  resumen: ResumenStockDto;
+}
+
+export interface FiltrosReporteStock {
+  nivel?: NivelStockEnum;
+  tipo?: "ingrediente" | "costoextra";
+}

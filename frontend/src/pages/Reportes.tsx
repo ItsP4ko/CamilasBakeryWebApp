@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, Cake, Package, DollarSign, TrendingUp } from 'lucide-react';
+import { ShoppingCart, Cake, TrendingUp, AlertTriangle } from 'lucide-react';
 
 const Reportes: React.FC = () => {
   const navigate = useNavigate();
@@ -28,18 +28,11 @@ const Reportes: React.FC = () => {
       path: '/reportes/tortas'
     },
     {
-      titulo: 'Ingredientes',
-      descripcion: 'Control de stock y consumo',
-      icon: Package,
-      color: 'green',
-      path: '/reportes/ingredientes'
-    },
-    {
-      titulo: 'Costos Extras',
-      descripcion: 'Análisis de costos adicionales',
-      icon: DollarSign,
-      color: 'purple',
-      path: '/reportes/costosExtras'
+      titulo: 'Control de Stock',
+      descripcion: 'Niveles de inventario de ingredientes y costos extra',
+      icon: AlertTriangle,
+      color: 'orange',
+      path: '/reportes/stock'
     }
   ];
 
@@ -61,8 +54,7 @@ const Reportes: React.FC = () => {
             blue: 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400',
             emerald: 'bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-400',
             pink: 'bg-pink-100 dark:bg-pink-900 text-pink-600 dark:text-pink-400',
-            green: 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400',
-            purple: 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400'
+            orange: 'bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-400'
           };
           
           return (

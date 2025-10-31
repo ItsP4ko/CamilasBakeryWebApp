@@ -22,8 +22,7 @@ export const navigationItems: NavigationItem[] = [
       { name: 'Pedidos', href: '/reportes/pedidos' },
       { name: 'Finanzas', href: '/reportes/finanzas' },
       { name: 'Tortas', href: '/reportes/tortas' },
-      { name: 'Ingredientes', href: '/reportes/ingredientes' },
-      { name: 'Costos Extras', href: '/reportes/costosExtras' }
+      { name: 'Stock', href: '/reportes/stock' }
     ]
   }
 ];

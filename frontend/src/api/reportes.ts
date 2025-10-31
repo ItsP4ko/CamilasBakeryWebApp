@@ -15,7 +15,9 @@ import {
   TortasRentablesData,
   TortasRentablesParams,
   MedidasPopularesData,
-  MedidasPopularesParams
+  MedidasPopularesParams,
+  ReporteStockResponseDto,
+  FiltrosReporteStock
 } from '../types/reportes';
 
 /**
@@ -68,4 +70,46 @@ export const getTortasRentables = async (params: TortasRentablesParams): Promise
 export const getMedidasPopulares = async (params: MedidasPopularesParams): Promise<MedidasPopularesData[]> => {
   const response = await api.get<MedidasPopularesData[]>('/api/reportes/MedidasPopulares', { params });
   return response.data;
+};
+
+// 9. Reporte de Stock
+export const getReporteStock = async (filtros?: FiltrosReporteStock): Promise<ReporteStockResponseDto> => {
+  // Filtrar parámetros undefined para no enviarlos al backend
+  const params: any = {};
+  if (filtros?.nivel !== undefined) {
+    params.nivel = filtros.nivel;
+  }
+  if (filtros?.tipo !== undefined) {
+    params.tipo = filtros.tipo;
+  }
+  
+  const response = await api.get<any>('/api/reportes/stock', { params });
+  
+  // El backend devuelve PascalCase, convertir a camelCase
+  const data = response.data;
+  const itemsBackend = data.Items || data.items || [];
+  const resumenBackend = data.Resumen || data.resumen;
+  
+  // Transformar cada item de PascalCase a camelCase
+  const itemsTransformados = itemsBackend.map((item: any) => ({
+    id: item.Id ?? item.id,
+    nombre: item.Nombre ?? item.nombre,
+    stock: item.Stock ?? item.stock,
+    maxStock: item.MaxStock ?? item.maxStock,
+    porcentajeStock: item.PorcentajeStock ?? item.porcentajeStock,
+    nivelStock: item.NivelStock ?? item.nivelStock,
+    nivelStockTexto: item.NivelStockTexto ?? item.nivelStockTexto,
+    tipoItem: item.TipoItem ?? item.tipoItem,
+  }));
+  
+  return {
+    items: itemsTransformados,
+    resumen: {
+      totalItems: resumenBackend?.TotalItems ?? resumenBackend?.totalItems ?? 0,
+      itemsCriticos: resumenBackend?.ItemsCriticos ?? resumenBackend?.itemsCriticos ?? 0,
+      itemsBajos: resumenBackend?.ItemsBajos ?? resumenBackend?.itemsBajos ?? 0,
+      itemsMedios: resumenBackend?.ItemsMedios ?? resumenBackend?.itemsMedios ?? 0,
+      itemsAltos: resumenBackend?.ItemsAltos ?? resumenBackend?.itemsAltos ?? 0,
+    }
+  };
 };
