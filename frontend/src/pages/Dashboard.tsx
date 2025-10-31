@@ -4,6 +4,7 @@ import { useDashboardMetrics } from "../hooks/useDashboardMetrics"
 import StatsCard from "@/components/general/StatsCard"
 import { useIngredientes } from "@/hooks/useIngredientes"
 import { getGananciaMensual } from "@/api/pedidos"
+import { formatCurrency } from "@/utils/formatters"
 
 const Dashboard: React.FC = () => {
   // Use different variable names to avoid redeclaration errors
@@ -22,7 +23,7 @@ const Dashboard: React.FC = () => {
   const tortasCount = dashboardData?.tortasCount ?? "0";
   const pedidosPendientes = dashboardData?.pedidosPendientes ?? "0";
   const totalItems = ingredientesData?.length || 0; 
-  const GananciaMensual = dashboardData?.gananciaMensual ?? "0";
+  const GananciaMensual = formatCurrency(dashboardData?.gananciaMensual);
 
   const isLoading = dashboardLoading || ingLoading; 
   const error = dashboardError || ingError;

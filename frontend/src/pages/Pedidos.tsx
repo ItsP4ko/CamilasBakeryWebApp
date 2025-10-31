@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, lazy, Suspense } from "react";
-import { ShoppingBag, Clock, CheckCircle, DollarSign, Plus, ChevronLeft, ChevronRight, Search, Filter } from "lucide-react";
+import { ShoppingBag, Clock, CheckCircle, DollarSign, Plus, ChevronLeft, ChevronRight, Search, Filter, ArrowUpLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -11,6 +11,7 @@ import { useDashboardMetrics } from "@/hooks/useDashboardMetrics";
 import { useUpdatePedido } from "@/hooks/useUpdatePedido";
 import * as api from "@/api/pedidos";
 import { PedidoResumen } from "@/types/pedidos";
+import { formatCurrency } from "@/utils/formatters";
 
 // ✅ Lazy load del popup (solo se carga cuando se abre)
 const PedidoDetallePopup = lazy(() => import("@/components/pedidos/PedidoDetallePopup")); 
@@ -154,11 +155,16 @@ const PedidosDashboard: React.FC = () => {
         />
         <StatsCard
           label="Ganancia mensual"
-          value={`$ ${Number(metrics?.gananciaMensual ?? 0).toLocaleString("es-AR", {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-          })}`}
+          value={formatCurrency(metrics?.gananciaMensual)}
           icon={DollarSign}
+        />
+        <StatsCard
+          label="Reportes y estadisticas"
+          value={"Vistar"}
+          icon={ArrowUpLeft}
+          iconColor="primary"
+          delay={0}
+          href="/reportes/pedidos"
         />
       </div>
 

@@ -153,7 +153,7 @@ const Ingredientes: React.FC = () => {
           icon={ArrowUpLeft}
           iconColor="primary"
           delay={0}
-          href="/reportes/ingredientes"
+          href="/reportes/stock"
         />
       </div>
 

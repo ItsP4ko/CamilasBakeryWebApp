@@ -155,7 +155,7 @@ const CostoExtra: React.FC = () => {
           icon={ArrowUpLeft}
           iconColor="primary"
           delay={0}
-          href="/reportes/costosExtras"
+          href="/reportes/stock"
         />
       </div>
 
