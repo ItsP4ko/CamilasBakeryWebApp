@@ -16,7 +16,15 @@ export const getCostosExtra = async (): Promise<CostoExtra[]> => {
 
 export const createCostoExtra = async (createCostoExtra : CreateCostoExtraDTO): Promise<CostoExtra> =>{
   const response = await api.post(`/api/CostosExtra`, createCostoExtra);
-  return response.data as CostoExtra;
+  // Mapear la respuesta del backend (PascalCase) al formato del frontend (camelCase)
+  const data: any = response.data;
+  return {
+    idCostoExtra: data.IdCostoExtra || data.idCostoExtra,
+    nombre: data.Nombre || data.nombre,
+    precioUnitario: data.PrecioUnitario || data.precioUnitario,
+    nota: data.Nota || data.nota || null,
+    stock: data.Stock ?? data.stock ?? null
+  };
 }
 
 //eliminar ingrediente

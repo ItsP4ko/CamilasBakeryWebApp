@@ -29,7 +29,15 @@ export const getIngredientesByID = async (id: number): Promise<Ingrediente[]> =>
 // crear ingrediente
 export const createIngrediente = async (ingrediente : CreateIngredienteDTO): Promise<Ingrediente> =>{
   const response = await api.post(`/api/Ingredientes`, ingrediente);
-  return response.data as Ingrediente;
+  // Mapear la respuesta del backend (PascalCase) al formato del frontend (camelCase)
+  const data: any = response.data;
+  return {
+    idIngrediente: data.IdIngrediente || data.idIngrediente,
+    nombre: data.Nombre || data.nombre,
+    unidadCompra: data.UnidadCompra || data.unidadCompra,
+    precioUnitario: data.PrecioUnitario || data.precioUnitario,
+    stock: data.Stock ?? data.stock ?? 0
+  };
 }
 
 //eliminar ingrediente

@@ -92,7 +92,7 @@ const Ingredientes: React.FC = () => {
 
   // Filtrado por búsqueda
   const filteredData = data?.filter((ingrediente) =>
-    ingrediente.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+    ingrediente.nombre?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Loading state

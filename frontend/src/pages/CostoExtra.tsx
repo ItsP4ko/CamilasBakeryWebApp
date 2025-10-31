@@ -93,7 +93,7 @@ const CostoExtra: React.FC = () => {
 
   // Filtrar costos extra por búsqueda
   const filteredData = data?.filter((costo) =>
-    costo.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    costo.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     costo.nota?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
