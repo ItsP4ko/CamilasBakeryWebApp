@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChefHat, Package, Search, Plus, ArrowUpLeft, DollarSignIcon, Trash2, Edit } from 'lucide-react';
+import { ChefHat, Package, Search, Plus, ArrowUpLeft, DollarSignIcon, Trash2, Edit, TrendingUp } from 'lucide-react';
 import { useIngredientes, useCreateIngrediente, useUpdateIngrediente, useDeleteIngrediente } from '../hooks/useIngredientes';
 import StatsCard from '@/components/general/StatsCard';
 import PopupForm from '@/components/general/PopUpCreate';
@@ -115,10 +115,12 @@ const Ingredientes: React.FC = () => {
 
   // Estadísticas
   const totalIngredientes = data?.length || 0;
-  const costoTotal = data?.reduce((sum, ing) => sum + ing.precioUnitario, 0) || 0;
-  const ingredienteMasCostoso = data?.reduce((max, ing) => 
-    ing.precioUnitario > max.precioUnitario ? ing : max
-  );
+  const costoTotal = data && data.length > 0 
+    ? data.reduce((sum, ing) => sum + ing.precioUnitario, 0) 
+    : 0;
+  const ingredienteMasCostoso = data && data.length > 0 
+    ? data.reduce((max, ing) => ing.precioUnitario > max.precioUnitario ? ing : max)
+    : null;
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6">
@@ -140,15 +142,12 @@ const Ingredientes: React.FC = () => {
         />
 
         <StatsCard
-          label="Ingredientes mas costoso"
-          value={ingredienteMasCostoso?.nombre ?? "N/A"}
-          icon={DollarSignIcon}
-          iconColor="primary"
-          delay={0}
-          onClick={() => setSearchTerm(ingredienteMasCostoso?.nombre ?? "")}
-        />
-
-        <StatsCard
+          label="Más Costoso"
+          value={ingredienteMasCostoso ? `${ingredienteMasCostoso.nombre}` : "N/A"}
+          icon={TrendingUp}
+          iconColor="orange"
+          delay={0.2}
+        />        <StatsCard
           label="Reportes y estadisticas"
           value="Visitar"
           icon={ArrowUpLeft}
@@ -201,16 +200,44 @@ const Ingredientes: React.FC = () => {
         </div>
       </motion.div>
 
+      {/* Mensaje sin datos */}
+      {(!filteredData || filteredData.length === 0) && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
+          className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-8 text-center"
+        >
+          <Package className="w-16 h-16 mx-auto text-yellow-600 dark:text-yellow-400 mb-4" />
+          <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
+            No hay ingredientes disponibles
+          </h3>
+          <p className="text-yellow-600 dark:text-yellow-400 mb-4">
+            {searchTerm 
+              ? `No se encontraron ingredientes que coincidan con "${searchTerm}"`
+              : "Aún no has agregado ingredientes al inventario"}
+          </p>
+          <button
+            onClick={() => setPopupCreateOpen(true)}
+            className="inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Agregar primer ingrediente
+          </button>
+        </motion.div>
+      )}
+
       {/* Tabla / Cards Responsive */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.4 }}
-        className="bg-primary-50 dark:bg-gray-800 rounded-xl shadow-sm border border-primary-200 dark:border-gray-700 overflow-hidden"
-      >
-        {/* 📱 VISTA MÓVIL - Cards */}
-        <div className="block lg:hidden p-4 space-y-4">
-          {(filteredData || []).map((ing, index) => (
+      {filteredData && filteredData.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
+          className="bg-primary-50 dark:bg-gray-800 rounded-xl shadow-sm border border-primary-200 dark:border-gray-700 overflow-hidden"
+        >
+          {/* 📱 VISTA MÓVIL - Cards */}
+          <div className="block lg:hidden p-4 space-y-4">
+            {(filteredData || []).map((ing, index) => (
             <motion.div
               key={ing.idIngrediente ?? index}
               initial={{ opacity: 0, x: -20 }}
@@ -352,20 +379,8 @@ const Ingredientes: React.FC = () => {
             </tbody>
           </table>
         </div>
-
-        {/* Estado vacío */}
-        {filteredData && filteredData.length === 0 && (
-          <div className="text-center py-12">
-            <ChefHat className="w-12 h-12 text-primary-400 dark:text-gray-500 mx-auto mb-4" />
-            <p className="text-primary-600 dark:text-gray-400 font-medium">
-              No se encontraron ingredientes
-            </p>
-            <p className="text-primary-400 dark:text-gray-500 text-sm mt-1">
-              Intenta con otro término de búsqueda
-            </p>
-          </div>
-        )}
       </motion.div>
+      )}
 
       {/* Popup de creación */}
       <PopupForm

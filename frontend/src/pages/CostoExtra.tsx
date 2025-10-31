@@ -115,9 +115,9 @@ const CostoExtra: React.FC = () => {
 
   // Calcular estadísticas
   const totalItems = data?.length || 0;
-  const costoExtraMasCostoso = data?.reduce((max, costo) => 
-    costo.precioUnitario > max.precioUnitario ? costo : max
-  );
+  const costoExtraMasCostoso = data && data.length > 0 
+    ? data.reduce((max, costo) => costo.precioUnitario > max.precioUnitario ? costo : max)
+    : null;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
@@ -202,16 +202,44 @@ const CostoExtra: React.FC = () => {
         </div>
       </motion.div>
 
+      {/* Mensaje sin datos */}
+      {(!filteredData || filteredData.length === 0) && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
+          className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-8 text-center"
+        >
+          <Package className="w-16 h-16 mx-auto text-yellow-600 dark:text-yellow-400 mb-4" />
+          <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
+            No hay costos extra disponibles
+          </h3>
+          <p className="text-yellow-600 dark:text-yellow-400 mb-4">
+            {searchTerm 
+              ? `No se encontraron costos extra que coincidan con "${searchTerm}"`
+              : "Aún no has agregado costos extra al sistema"}
+          </p>
+          <button
+            onClick={() => setPopupCreateOpen(true)}
+            className="inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Agregar primer costo extra
+          </button>
+        </motion.div>
+      )}
+
       {/* Tabla / Cards Responsive */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.4 }}
-        className="bg-primary-50 dark:bg-gray-800 rounded-xl shadow-sm border border-primary-200 dark:border-gray-700 overflow-hidden"
-      >
-        {/* 📱 VISTA MÓVIL - Cards */}
-        <div className="block lg:hidden p-4 space-y-4">
-          {(filteredData || []).map((costo, index) => (
+      {filteredData && filteredData.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
+          className="bg-primary-50 dark:bg-gray-800 rounded-xl shadow-sm border border-primary-200 dark:border-gray-700 overflow-hidden"
+        >
+          {/* 📱 VISTA MÓVIL - Cards */}
+          <div className="block lg:hidden p-4 space-y-4">
+            {(filteredData || []).map((costo, index) => (
             <motion.div
               key={costo.idCostoExtra}
               initial={{ opacity: 0, x: -20 }}
@@ -371,18 +399,8 @@ const CostoExtra: React.FC = () => {
             </tbody>
           </table>
         </div>
-
-        {/* Empty State */}
-        {filteredData && filteredData.length === 0 && (
-          <div className="text-center py-12">
-            <DollarSign className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-            <p className="text-gray-600 dark:text-gray-400 font-medium">No se encontraron costos extra</p>
-            <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">
-              Intenta con otro término de búsqueda
-            </p>
-          </div>
-        )}
       </motion.div>
+      )}
 
       {/* Popup de creación */}
       <PopupForm
