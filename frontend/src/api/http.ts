@@ -1,6 +1,19 @@
 import axios from 'axios';
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AxiosError<T = any> = Parameters<Parameters<typeof axios.interceptors.response.use>[1]>[0] & { response?: { data?: T; status?: number } };
+
+// Simple AxiosError interface compatible with all axios 1.x versions
+interface AxiosError<T = any> extends Error {
+  config?: any;
+  code?: string;
+  request?: any;
+  response?: {
+    data?: T;
+    status: number;
+    statusText: string;
+    headers: any;
+    config?: any;
+  };
+  isAxiosError: boolean;
+}
 
 const baseURL = import.meta.env.VITE_API_URL;
 
