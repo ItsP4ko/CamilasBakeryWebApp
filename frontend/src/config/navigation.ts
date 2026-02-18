@@ -1,5 +1,4 @@
-import { LayoutDashboard, CakeSlice, Package, DollarSign, BarChart3, ShoppingCart } from 'lucide-react';
-import { LucideIcon } from 'lucide-react';
+import { LayoutDashboard, CakeSlice, Package, DollarSign, BarChart3, ShoppingCart, Wallet, LucideIcon } from 'lucide-react';
 
 export interface NavigationItem {
   name: string;
@@ -14,7 +13,8 @@ export const navigationItems: NavigationItem[] = [
   { name: 'Ingredientes', href: '/ingredientes', icon: Package },
   { name: 'Costos Extra', href: '/costos-extra', icon: DollarSign },
   { name: 'Pedidos', href: '/pedidos', icon: ShoppingCart },
-  { 
+  { name: 'Cuentas', href: '/cuentas', icon: Wallet },
+  {
     name: 'Reportes',
     href: '/reportes',
     icon: BarChart3,

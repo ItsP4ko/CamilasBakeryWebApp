@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { DollarSign, Package, Search, Plus, ArrowUpLeft, DollarSignIcon, Trash2, Edit } from 'lucide-react';
+import { Package, Search, Plus, ArrowUpLeft, DollarSignIcon, Trash2, Edit } from 'lucide-react';
 import { useCostoExtra, useCreateCostoExtra, useUpdateCostoExtra, useDeleteCostoExtra } from '../hooks/useCostoExtra';
 import StatsCard from '@/components/general/StatsCard';
 import PopupForm from '@/components/general/PopUpCreate';
@@ -8,7 +8,14 @@ import PopupEdit from '@/components/general/PopupEdit';
 import PopupConfirm from '@/components/general/PopupConfirm';
 
 const CostoExtra: React.FC = () => {
-  const { data, isLoading, error } = useCostoExtra();
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 20;
+
+  const { data: pagedResult, isLoading, error } = useCostoExtra(currentPage, pageSize);
+  const costosData = pagedResult?.items || [];
+  const totalPages = pagedResult?.totalPages || 1;
+  const totalCount = pagedResult?.totalCount || 0;
+
   const [searchTerm, setSearchTerm] = useState('');
 
   const [popupCreateOpen, setPopupCreateOpen] = useState(false);
@@ -16,35 +23,35 @@ const CostoExtra: React.FC = () => {
   const [popupConfirmOpen, setPopupConfirmOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [itemToDelete, setItemToDelete] = useState<{ id: number; nombre: string } | null>(null);
-  
-  const { mutate } = useCreateCostoExtra(); 
+
+  const { mutate } = useCreateCostoExtra();
   const { mutate: updateMutate } = useUpdateCostoExtra();
-  const { mutate: deleteMutate } = useDeleteCostoExtra(); 
+  const { mutate: deleteMutate } = useDeleteCostoExtra();
 
   // Crear nuevo Costo Extra
   const handleCreate = (formData: any) => {
     console.log("Datos enviados al backend:", formData);
-    
+
     // ✅ Cerrar el popup INMEDIATAMENTE (optimistic UI)
     setPopupCreateOpen(false);
-  
+
     // ⏳ La mutación ocurre en segundo plano con optimistic update
     mutate(formData, {
       onError: (err: any) => {
         console.error("Error al crear costo extra:");
         // El rollback automático ya está manejado en el hook
-      }, 
+      },
     });
   };
 
   // Actualizar costo extra
   const handleUpdate = (formData: any) => {
     if (!selectedItem) return;
-    
+
     // ✅ Cerrar el popup INMEDIATAMENTE (optimistic UI)
     setPopupEditOpen(false);
     setSelectedItem(null);
-    
+
     // ⏳ La mutación ocurre en segundo plano con optimistic update
     updateMutate(
       { id: selectedItem.idCostoExtra, data: formData },
@@ -65,12 +72,12 @@ const CostoExtra: React.FC = () => {
 
   const confirmDelete = () => {
     if (!itemToDelete) return;
-    
+
     // ✅ Cerrar el popup INMEDIATAMENTE (optimistic UI)
     setPopupConfirmOpen(false);
     const itemId = itemToDelete.id;
     setItemToDelete(null);
-    
+
     // ⏳ La mutación ocurre en segundo plano con optimistic update
     deleteMutate(itemId, {
       onError: (err: any) => {
@@ -92,7 +99,7 @@ const CostoExtra: React.FC = () => {
   };
 
   // Filtrar costos extra por búsqueda
-  const filteredData = data?.filter((costo) =>
+  const filteredData = costosData.filter((costo) =>
     costo.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     costo.nota?.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -114,9 +121,9 @@ const CostoExtra: React.FC = () => {
   }
 
   // Calcular estadísticas
-  const totalItems = data?.length || 0;
-  const costoExtraMasCostoso = data && data.length > 0 
-    ? data.reduce((max, costo) => costo.precioUnitario > max.precioUnitario ? costo : max)
+  const totalItems = totalCount;
+  const costoExtraMasCostoso = costosData.length > 0
+    ? costosData.reduce((max, costo) => costo.precioUnitario > max.precioUnitario ? costo : max)
     : null;
 
   return (
@@ -170,7 +177,7 @@ const CostoExtra: React.FC = () => {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400 dark:text-gray-500 w-5 h-5" />
           <input
             type="text"
-            placeholder="Buscar por nombre o nota..."
+            placeholder="Buscar por nombre o nota en esta página..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 
@@ -186,7 +193,7 @@ const CostoExtra: React.FC = () => {
         <div className="flex items-center justify-between mt-2 text-xs sm:text-sm text-primary-600 dark:text-gray-400">
           {filteredData && filteredData.length > 0 ? (
             <p>
-              {filteredData.length} de {totalItems} costos extra
+              Mostrando {filteredData.length} de {totalItems} costos extra
             </p>
           ) : (
             <p>&nbsp;</p>
@@ -215,7 +222,7 @@ const CostoExtra: React.FC = () => {
             No hay costos extra disponibles
           </h3>
           <p className="text-yellow-600 dark:text-yellow-400 mb-4">
-            {searchTerm 
+            {searchTerm
               ? `No se encontraron costos extra que coincidan con "${searchTerm}"`
               : "Aún no has agregado costos extra al sistema"}
           </p>
@@ -240,166 +247,195 @@ const CostoExtra: React.FC = () => {
           {/* 📱 VISTA MÓVIL - Cards */}
           <div className="block lg:hidden p-4 space-y-4">
             {(filteredData || []).map((costo, index) => (
-            <motion.div
-              key={costo.idCostoExtra}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.02 }}
-              className="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-md space-y-3"
-            >
-              {/* Header con nombre y acciones */}
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-2 h-2 bg-primary-500 rounded-full"></div>
-                    <span className="font-semibold text-gray-900 dark:text-white">{costo.nombre}</span>
+              <motion.div
+                key={costo.idCostoExtra}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.02 }}
+                className="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-md space-y-3"
+              >
+                {/* Header con nombre y acciones */}
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-2 h-2 bg-primary-500 rounded-full"></div>
+                      <span className="font-semibold text-gray-900 dark:text-white">{costo.nombre}</span>
+                    </div>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">ID: {costo.idCostoExtra}</span>
                   </div>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">ID: {costo.idCostoExtra}</span>
-                </div>
-                
-                {/* Acciones */}
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleEdit(costo)}
-                    className="p-2 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800 transition"
-                    title="Editar"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(costo.idCostoExtra, costo.nombre)}
-                    className="p-2 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 transition"
-                    title="Eliminar"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
 
-              {/* Detalles */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-gray-600 dark:text-gray-400 font-medium">Stock</label>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                    {costo.stock !== null && costo.stock !== undefined ? costo.stock : '-'}
-                  </p>
+                  {/* Acciones */}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEdit(costo)}
+                      className="p-2 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800 transition"
+                      title="Editar"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(costo.idCostoExtra, costo.nombre)}
+                      className="p-2 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 transition"
+                      title="Eliminar"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
-                
-                {costo.nota && costo.nota.trim() !== '' && (
-                  <div className="col-span-2">
-                    <label className="text-xs text-gray-600 dark:text-gray-400 font-medium">Nota</label>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-200 dark:bg-primary-900 text-primary-800 dark:text-primary-300">
-                        {costo.nota}
-                      </span>
+
+                {/* Detalles */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-gray-600 dark:text-gray-400 font-medium">Stock</label>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                      {costo.stock !== null && costo.stock !== undefined ? costo.stock : '-'}
                     </p>
                   </div>
-                )}
-              </div>
 
-              {/* Precio */}
-              <div className="pt-2 border-t border-gray-200 dark:border-gray-600">
-                <label className="text-xs text-gray-600 dark:text-gray-400 font-medium">Precio Unitario</label>
-                <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                  {costo.precioUnitario?.toLocaleString('es-AR', {
-                    style: 'currency',
-                    currency: 'ARS',
-                    minimumFractionDigits: 2,
-                  })}
-                </p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* 💻 VISTA DESKTOP - Tabla */}
-        <div className="hidden lg:block overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-primary-50 dark:bg-gray-700 border-b border-primary-200 dark:border-gray-600">
-                <th className="bg-primary-200 dark:bg-gray-700 px-6 py-4 text-left text-xs font-semibold text-primary-700 dark:text-gray-300 uppercase tracking-wider">
-                  ID
-                </th>
-                <th className="bg-primary-200 dark:bg-gray-700 px-6 py-4 text-left text-xs font-semibold text-primary-700 dark:text-gray-300 uppercase tracking-wider">
-                  Nombre
-                </th>
-                <th className="bg-primary-200 dark:bg-gray-700 px-6 py-4 text-left text-xs font-semibold text-primary-700 dark:text-gray-300 uppercase tracking-wider">
-                  Stock
-                </th>
-                <th className="bg-primary-200 dark:bg-gray-700 px-6 py-4 text-left text-xs font-semibold text-primary-700 dark:text-gray-300 uppercase tracking-wider">
-                  Precio Unitario
-                </th>
-                <th className="bg-primary-200 dark:bg-gray-700 px-6 py-4 text-left text-xs font-semibold text-primary-700 dark:text-gray-300 uppercase tracking-wider">
-                  Nota
-                </th>
-                <th className="bg-primary-200 dark:bg-gray-700 px-6 py-4 text-center text-xs font-semibold text-primary-700 dark:text-gray-300 uppercase tracking-wider">
-                  Acciones
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-primary-200 dark:divide-gray-600">
-              {(filteredData || []).map((costo, index) => (
-                <motion.tr
-                  key={costo.idCostoExtra}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.02 }}
-                  className="hover:bg-primary-100 dark:hover:bg-gray-700 transition-colors"
-                >
-                  <td className="px-6 py-4 text-sm text-primary-900 dark:text-white font-medium">
-                    {costo.idCostoExtra}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-primary-900 dark:text-white">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-primary-500 rounded-full"></div>
-                      <span className="font-medium">{costo.nombre}</span>
+                  {costo.nota && costo.nota.trim() !== '' && (
+                    <div className="col-span-2">
+                      <label className="text-xs text-gray-600 dark:text-gray-400 font-medium">Nota</label>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-200 dark:bg-primary-900 text-primary-800 dark:text-primary-300">
+                          {costo.nota}
+                        </span>
+                      </p>
                     </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-primary-900 dark:text-white">
-                    <span className="font-semibold">
-                      {costo.stock !== null && costo.stock !== undefined ? costo.stock : '-'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm font-semibold text-green-600 dark:text-green-400">
+                  )}
+                </div>
+
+                {/* Precio */}
+                <div className="pt-2 border-t border-gray-200 dark:border-gray-600">
+                  <label className="text-xs text-gray-600 dark:text-gray-400 font-medium">Precio Unitario</label>
+                  <p className="text-lg font-bold text-green-600 dark:text-green-400">
                     {costo.precioUnitario?.toLocaleString('es-AR', {
                       style: 'currency',
                       currency: 'ARS',
                       minimumFractionDigits: 2,
                     })}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-primary-600 dark:text-gray-400">
-                    {costo.nota && costo.nota.trim() !== '' ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-200 dark:bg-primary-900 text-primary-800 dark:text-primary-300">
-                        {costo.nota}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* 💻 VISTA DESKTOP - Tabla */}
+          <div className="hidden lg:block overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-primary-50 dark:bg-gray-700 border-b border-primary-200 dark:border-gray-600">
+                  <th className="bg-primary-200 dark:bg-gray-700 px-6 py-4 text-left text-xs font-semibold text-primary-700 dark:text-gray-300 uppercase tracking-wider">
+                    ID
+                  </th>
+                  <th className="bg-primary-200 dark:bg-gray-700 px-6 py-4 text-left text-xs font-semibold text-primary-700 dark:text-gray-300 uppercase tracking-wider">
+                    Nombre
+                  </th>
+                  <th className="bg-primary-200 dark:bg-gray-700 px-6 py-4 text-left text-xs font-semibold text-primary-700 dark:text-gray-300 uppercase tracking-wider">
+                    Stock
+                  </th>
+                  <th className="bg-primary-200 dark:bg-gray-700 px-6 py-4 text-left text-xs font-semibold text-primary-700 dark:text-gray-300 uppercase tracking-wider">
+                    Precio Unitario
+                  </th>
+                  <th className="bg-primary-200 dark:bg-gray-700 px-6 py-4 text-left text-xs font-semibold text-primary-700 dark:text-gray-300 uppercase tracking-wider">
+                    Nota
+                  </th>
+                  <th className="bg-primary-200 dark:bg-gray-700 px-6 py-4 text-center text-xs font-semibold text-primary-700 dark:text-gray-300 uppercase tracking-wider">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-primary-200 dark:divide-gray-600">
+                {(filteredData || []).map((costo, index) => (
+                  <motion.tr
+                    key={costo.idCostoExtra}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.02 }}
+                    className="hover:bg-primary-100 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    <td className="px-6 py-4 text-sm text-primary-900 dark:text-white font-medium">
+                      {costo.idCostoExtra}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-primary-900 dark:text-white">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-primary-500 rounded-full"></div>
+                        <span className="font-medium">{costo.nombre}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-primary-900 dark:text-white">
+                      <span className="font-semibold">
+                        {costo.stock !== null && costo.stock !== undefined ? costo.stock : '-'}
                       </span>
-                    ) : (
-                      <span className="text-primary-400 dark:text-gray-500 italic">Sin nota</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <div className="flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => handleEdit(costo)}
-                        className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
-                        title="Editar"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(costo.idCostoExtra, costo.nombre)}
-                        className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                        title="Eliminar"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </motion.div>
+                    </td>
+                    <td className="px-6 py-4 text-sm font-semibold text-green-600 dark:text-green-400">
+                      {costo.precioUnitario?.toLocaleString('es-AR', {
+                        style: 'currency',
+                        currency: 'ARS',
+                        minimumFractionDigits: 2,
+                      })}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-primary-600 dark:text-gray-400">
+                      {costo.nota && costo.nota.trim() !== '' ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-200 dark:bg-primary-900 text-primary-800 dark:text-primary-300">
+                          {costo.nota}
+                        </span>
+                      ) : (
+                        <span className="text-primary-400 dark:text-gray-500 italic">Sin nota</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => handleEdit(costo)}
+                          className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+                          title="Editar"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(costo.idCostoExtra, costo.nombre)}
+                          className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                          title="Eliminar"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex justify-between items-center p-4 border-t border-primary-200 dark:border-gray-700 bg-primary-50 dark:bg-gray-800">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className={`px-4 py-2 rounded-md ${currentPage === 1
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'
+                  : 'bg-primary-500 text-white hover:bg-primary-600 dark:bg-primary-600 dark:hover:bg-primary-700'
+                  }`}
+              >
+                Anterior
+              </button>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Página {currentPage} de {totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className={`px-4 py-2 rounded-md ${currentPage === totalPages
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'
+                  : 'bg-primary-500 text-white hover:bg-primary-600 dark:bg-primary-600 dark:hover:bg-primary-700'
+                  }`}
+              >
+                Siguiente
+              </button>
+            </div>
+          )}
+        </motion.div>
       )}
 
       {/* Popup de creación */}

@@ -11,6 +11,7 @@ import {
   modificarIngredienteExtra,
   eliminarIngredienteExtra,
 } from '@/api/pedidosControl';
+import { queryKeys } from '@/api/queryKeys';
 
 // ============================================
 // HOOKS PARA DETALLES DEL PEDIDO
@@ -29,7 +30,7 @@ export const useAgregarDetallePedido = () => {
       toast.success('Producto agregado');
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['pedido', variables.pedidoId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.pedidos.detail(variables.pedidoId] });
     },
     onError: () => {
       toast.error('Error al agregar producto');
@@ -47,11 +48,11 @@ export const useModificarDetallePedido = () => {
     mutationFn: ({ detallePedidoId, cantidad, pedidoId }: { detallePedidoId: number; cantidad: number; pedidoId: number }) =>
       modificarDetallePedido(detallePedidoId, { cantidad }),
     onMutate: async ({ pedidoId }) => {
-      await queryClient.cancelQueries({ queryKey: ['pedido', pedidoId] });
+      await queryClient.cancelQueries({ queryKey: queryKeys.pedidos.detail(pedidoId] });
       toast.success('Cantidad modificada');
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['pedido', variables.pedidoId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.pedidos.detail(variables.pedidoId] });
     },
     onError: () => {
       toast.error('Error al modificar cantidad');
@@ -69,9 +70,9 @@ export const useEliminarDetallePedido = () => {
     mutationFn: ({ detallePedidoId, pedidoId }: { detallePedidoId: number; pedidoId: number }) =>
       eliminarDetallePedido(detallePedidoId),
     onMutate: async ({ detallePedidoId, pedidoId }) => {
-      await queryClient.cancelQueries({ queryKey: ['pedido', pedidoId] });
+      await queryClient.cancelQueries({ queryKey: queryKeys.pedidos.detail(pedidoId] });
       const previousPedido = queryClient.getQueryData(['pedido', pedidoId]);
-      
+
       queryClient.setQueryData(['pedido', pedidoId], (old: any) => {
         if (!old) return old;
         return {
@@ -79,7 +80,7 @@ export const useEliminarDetallePedido = () => {
           detallePedidos: old.detallePedidos?.filter((d: any) => d.idDetallePedido !== detallePedidoId)
         };
       });
-      
+
       toast.success('Detalle eliminado');
       return { previousPedido };
     },
@@ -88,7 +89,7 @@ export const useEliminarDetallePedido = () => {
       toast.error('Error al eliminar detalle');
     },
     onSettled: (_, __, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['pedido', variables.pedidoId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.pedidos.detail(variables.pedidoId] });
     },
   });
 };
@@ -121,7 +122,7 @@ export const useAgregarExtra = () => {
       toast.success('Extra agregado');
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['pedido', variables.pedidoId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.pedidos.detail(variables.pedidoId] });
     },
     onError: () => {
       toast.error('Error al agregar extra');
@@ -148,8 +149,8 @@ export const useModificarExtra = () => {
       pedidoId: number;
     }) => modificarExtra(extraId, { cantidad, nota }),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['pedido', variables.pedidoId] });
-      queryClient.invalidateQueries({ queryKey: ['pedidos'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.pedidos.detail(variables.pedidoId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.pedidos.all });
       toast.success('Extra modificado exitosamente');
     },
     onError: (error: any) => {
@@ -168,9 +169,9 @@ export const useEliminarExtra = () => {
     mutationFn: ({ extraId, pedidoId }: { extraId: number; pedidoId: number }) =>
       eliminarExtra(extraId),
     onMutate: async ({ extraId, pedidoId }) => {
-      await queryClient.cancelQueries({ queryKey: ['pedido', pedidoId] });
+      await queryClient.cancelQueries({ queryKey: queryKeys.pedidos.detail(pedidoId] });
       const previousPedido = queryClient.getQueryData(['pedido', pedidoId]);
-      
+
       queryClient.setQueryData(['pedido', pedidoId], (old: any) => {
         if (!old) return old;
         return {
@@ -181,7 +182,7 @@ export const useEliminarExtra = () => {
           }))
         };
       });
-      
+
       toast.success('Extra eliminado');
       return { previousPedido };
     },
@@ -190,7 +191,7 @@ export const useEliminarExtra = () => {
       toast.error('Error al eliminar extra');
     },
     onSettled: (_, __, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['pedido', variables.pedidoId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.pedidos.detail(variables.pedidoId] });
     },
   });
 };
@@ -223,7 +224,7 @@ export const useAgregarIngredienteExtra = () => {
       toast.success('Ingrediente agregado');
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['pedido', variables.pedidoId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.pedidos.detail(variables.pedidoId] });
     },
     onError: () => {
       toast.error('Error al agregar ingrediente');
@@ -250,8 +251,8 @@ export const useModificarIngredienteExtra = () => {
       pedidoId: number;
     }) => modificarIngredienteExtra(ingredienteExtraId, { cantidad, nota }),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['pedido', variables.pedidoId] });
-      queryClient.invalidateQueries({ queryKey: ['pedidos'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.pedidos.detail(variables.pedidoId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.pedidos.all });
       toast.success('Ingrediente extra modificado exitosamente');
     },
     onError: (error: any) => {
@@ -270,9 +271,9 @@ export const useEliminarIngredienteExtra = () => {
     mutationFn: ({ ingredienteExtraId, pedidoId }: { ingredienteExtraId: number; pedidoId: number }) =>
       eliminarIngredienteExtra(ingredienteExtraId),
     onMutate: async ({ ingredienteExtraId, pedidoId }) => {
-      await queryClient.cancelQueries({ queryKey: ['pedido', pedidoId] });
+      await queryClient.cancelQueries({ queryKey: queryKeys.pedidos.detail(pedidoId] });
       const previousPedido = queryClient.getQueryData(['pedido', pedidoId]);
-      
+
       queryClient.setQueryData(['pedido', pedidoId], (old: any) => {
         if (!old) return old;
         return {
@@ -283,7 +284,7 @@ export const useEliminarIngredienteExtra = () => {
           }))
         };
       });
-      
+
       toast.success('Ingrediente eliminado');
       return { previousPedido };
     },
@@ -292,7 +293,7 @@ export const useEliminarIngredienteExtra = () => {
       toast.error('Error al eliminar ingrediente');
     },
     onSettled: (_, __, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['pedido', variables.pedidoId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.pedidos.detail(variables.pedidoId] });
     },
   });
 };

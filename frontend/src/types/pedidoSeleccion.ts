@@ -3,6 +3,7 @@
 export interface TortaSimple {
   idTorta: number;
   nombre: string;
+  multiplicadorGanancia: number;
 }
 
 export interface MedidaSimple {

@@ -14,20 +14,20 @@ import { PedidoResumen } from "@/types/pedidos";
 import { formatCurrency } from "@/utils/formatters";
 
 // ✅ Lazy load del popup (solo se carga cuando se abre)
-const PedidoDetallePopup = lazy(() => import("@/components/pedidos/PedidoDetallePopup")); 
+const PedidoDetallePopup = lazy(() => import("@/components/pedidos/PedidoDetallePopup"));
 
 const PedidosDashboard: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize] = useState(50); // Tamaño de página fijo
-  
+
   const { data: metrics, isLoading: metricsLoading } = useDashboardMetrics();
   const { mutate: updatePedido } = useUpdatePedido();
   const { mutate: deletePedido } = useEliminarPedido();
 
   const [selectedPedidoId, setSelectedPedidoId] = useState<number | null>(null);
-  
+
   // Estados para búsqueda y filtros
   const [searchTerm, setSearchTerm] = useState('');
   const [filtrosOpen, setFiltrosOpen] = useState(false);
@@ -54,7 +54,7 @@ const PedidosDashboard: React.FC = () => {
           pageSize,
         });
       }
-      
+
       // Si solo hay búsqueda por nombre (sin filtros), usa el endpoint existente
       // pero hay que adaptarlo porque no retorna PagedResult
       if (searchTerm && !hasActiveFilters) {
@@ -66,6 +66,7 @@ const PedidosDashboard: React.FC = () => {
             nombreCliente: p.nombreCliente,
             fecha: p.fecha,
             total: p.total,
+            ganancia: p.ganancia,
             metodoDePago: p.metodoDePago,
             estado: p.estado,
           })),
@@ -75,7 +76,7 @@ const PedidosDashboard: React.FC = () => {
           totalPages: 1,
         };
       }
-      
+
       // Si no hay filtros ni búsqueda, usa el endpoint normal
       return api.getPedidos(pageNumber, pageSize);
     },
@@ -139,6 +140,22 @@ const PedidosDashboard: React.FC = () => {
     }
   };
 
+  // ✅ Calcular Ganancia Dinámica
+  // Si hay filtros o búsqueda, sumamos la ganancia de los pedidos listados
+  // Si no, mostramos la ganancia mensual (del mes calendario actual)
+  const gananciaMostrada = useMemo(() => {
+    if (searchTerm || hasActiveFilters) {
+      if (!list || list.length === 0) return 0;
+      // Sumar ganancia de los pedidos filtrados que estén "Entregado"
+      return list
+        .filter(p => p.estado?.toLowerCase() === 'entregado')
+        .reduce((sum, p) => sum + (p.ganancia || 0), 0);
+    }
+    return metrics?.gananciaMensual ?? 0;
+  }, [searchTerm, hasActiveFilters, list, metrics?.gananciaMensual]);
+
+  const tituloGanancia = (searchTerm || hasActiveFilters) ? "Ganancia (Filtrada)" : "Ganancia mensual";
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8">
       {/* --- Métricas --- */}
@@ -154,8 +171,8 @@ const PedidosDashboard: React.FC = () => {
           icon={CheckCircle}
         />
         <StatsCard
-          label="Ganancia mensual"
-          value={formatCurrency(metrics?.gananciaMensual)}
+          label={tituloGanancia}
+          value={formatCurrency(gananciaMostrada)}
           icon={DollarSign}
         />
         <StatsCard
@@ -248,14 +265,14 @@ const PedidosDashboard: React.FC = () => {
           onUpdate={handleUpdatePedido}
           onDelete={handleDeletePedido}
         />
-        
+
         {/* --- Controles de paginación --- */}
         {totalPages > 1 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 sm:px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
             <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left">
               Página {pageNumber} de {totalPages} ({totalPedidos} pedidos)
             </div>
-            
+
             <div className="flex gap-2 w-full sm:w-auto">
               <button
                 onClick={handlePreviousPage}
@@ -265,7 +282,7 @@ const PedidosDashboard: React.FC = () => {
                 <ChevronLeft size={16} />
                 <span className="hidden sm:inline">Anterior</span>
               </button>
-              
+
               <button
                 onClick={handleNextPage}
                 disabled={pageNumber >= totalPages}

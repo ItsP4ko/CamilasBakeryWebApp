@@ -52,19 +52,19 @@ const mapPedidoFromBackend = (data: any): Pedido => ({
 // Obtener todos los pedidos (resumen) con paginación
 export const getPedidos = async (pageNumber: number = 1, pageSize: number = 100): Promise<PagedResult<PedidoResumen>> => {
   const response = await api.get(`/api/Pedidos?pageNumber=${pageNumber}&pageSize=${pageSize}`);
-  
+
   // El backend puede devolver con PascalCase o camelCase
   const pagedData: any = response.data;
-  
+
   // Obtener items con ambos formatos posibles
   const itemsArray = pagedData.items || pagedData.Items || [];
   const totalCount = pagedData.totalCount || pagedData.TotalCount || 0;
   const currentPageNumber = pagedData.pageNumber || pagedData.PageNumber || pageNumber;
   const currentPageSize = pagedData.pageSize || pagedData.PageSize || pageSize;
-  
+
   // Calcular totalPages si no viene del backend
   const totalPages = pagedData.totalPages || pagedData.TotalPages || Math.ceil(totalCount / currentPageSize);
-  
+
   return {
     items: itemsArray.map((pedido: any) => ({
       idPedido: pedido.IdPedido || pedido.idPedido,
@@ -102,7 +102,7 @@ export interface PedidosFiltrosParams {
 
 export const getPedidosConFiltros = async (filtros: PedidosFiltrosParams = {}): Promise<PagedResult<PedidoResumen>> => {
   const params = new URLSearchParams();
-  
+
   // El backend usa PascalCase para los query params
   if (filtros.nombreCliente) params.append('NombreCliente', filtros.nombreCliente);
   if (filtros.estado) params.append('Estado', filtros.estado);
@@ -111,26 +111,27 @@ export const getPedidosConFiltros = async (filtros: PedidosFiltrosParams = {}): 
   if (filtros.metodoPago) params.append('MetodoDePago', filtros.metodoPago);
   if (filtros.montoMinimo !== undefined) params.append('MontoMinimo', filtros.montoMinimo.toString());
   if (filtros.montoMaximo !== undefined) params.append('MontoMaximo', filtros.montoMaximo.toString());
-  
+
   // ⚠️ Este endpoint NO soporta paginación, retorna todos los resultados
-  
+
   const fullUrl = `/api/Pedidos/filtro?${params.toString()}`;
-  
+
   const response = await api.get(fullUrl);
-  
+
   // ⚠️ El endpoint /filtro retorna un ARRAY directamente, no un PagedResult
   // Necesitamos convertirlo a PagedResult manualmente
   const pedidosArray = Array.isArray(response.data) ? response.data : [];
-  
+
   const items = pedidosArray.map((pedido: any) => ({
     idPedido: pedido.IdPedido || pedido.idPedido,
     nombreCliente: pedido.NombreCliente || pedido.nombreCliente,
     fecha: pedido.Fecha || pedido.fecha,
     total: pedido.Total || pedido.total,
+    ganancia: pedido.Ganancia || pedido.ganancia,
     metodoDePago: pedido.MetodoDePago || pedido.metodoDePago,
     estado: pedido.Estado || pedido.estado,
   }));
-  
+
   return {
     items,
     totalCount: items.length,
@@ -143,7 +144,7 @@ export const getPedidosConFiltros = async (filtros: PedidosFiltrosParams = {}): 
 // Buscar pedidos por nombre de cliente (DEPRECATED - usa getPedidosConFiltros)
 export const getPedidosByNombre = async (nombre: string): Promise<Pedido[]> => {
   const response = await api.get(`/api/Pedidos/nombre/${nombre}`);
-  
+
   // El API devuelve un array de pedidos
   const pedidosArray = Array.isArray(response.data) ? response.data : [];
   return pedidosArray.map(mapPedidoFromBackend);
@@ -158,43 +159,43 @@ export const getPedidosByFecha = async (fecha: number): Promise<Pedido[]> => {
 
 // Buscar pedidos por fecha hasta pendientes
 export const getPedidosPendientesHoy = async (): Promise<number> => {
-    try {
-      const hoy = new Date();
-      const diaSemana = hoy.getDay(); // 0=Domingo, 1=Lunes, 2=Martes, ..., 6=Sábado
-      
-      // Días que faltan hasta el domingo (incluyendo hoy)
-      let diasHastaDomingo;
-      
-      if (diaSemana === 0) {
-        // Si hoy es domingo, solo cuenta hoy (1 día)
-        diasHastaDomingo = 1;
-      } else {
-        
-        diasHastaDomingo = 16 - diaSemana; // modificar el 16 al numero 8 para semana
-      }
-            
-      const response = await api.get(`/api/Pedidos/FechaHasta/${diasHastaDomingo}`);
-      
-      // Validar si la respuesta es un array
-      if (!Array.isArray(response.data)) {
-        return 0;
-      }
-      
-      const pedidos = response.data.map(mapPedidoFromBackend);
-      
-      const count = pedidos.filter(p =>
-        p.estado.toLowerCase() !== 'entregado' &&
-        p.estado.toLowerCase() !== 'cancelado'
-      ).length;
+  try {
+    const hoy = new Date();
+    const diaSemana = hoy.getDay(); // 0=Domingo, 1=Lunes, 2=Martes, ..., 6=Sábado
 
-      
-      return count;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        return 0;
-      }
+    // Días que faltan hasta el domingo (incluyendo hoy)
+    let diasHastaDomingo;
+
+    if (diaSemana === 0) {
+      // Si hoy es domingo, solo cuenta hoy (1 día)
+      diasHastaDomingo = 1;
+    } else {
+
+      diasHastaDomingo = 16 - diaSemana; // modificar el 16 al numero 8 para semana
+    }
+
+    const response = await api.get(`/api/Pedidos/FechaHasta/${diasHastaDomingo}`);
+
+    // Validar si la respuesta es un array
+    if (!Array.isArray(response.data)) {
       return 0;
     }
+
+    const pedidos = response.data.map(mapPedidoFromBackend);
+
+    const count = pedidos.filter(p =>
+      p.estado.toLowerCase() !== 'entregado' &&
+      p.estado.toLowerCase() !== 'cancelado'
+    ).length;
+
+
+    return count;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return 0;
+    }
+    return 0;
+  }
 };
 
 // Buscar pedidos por fecha
@@ -253,7 +254,7 @@ export const crearPedido = async (pedido: CrearPedidoDTO): Promise<Pedido> => {
       }))
     }))
   };
-  
+
   const response = await api.post('/api/Pedidos', pedidoBackend);
   return mapPedidoFromBackend(response.data);
 };
@@ -302,7 +303,7 @@ export const getGananciaMensual = async (): Promise<number> => {
       .filter((pedido: any) => pedido.Estado?.toLowerCase() === "entregado")
       .reduce((acc: number, pedido: any) => acc + (pedido.Ganancia ?? 0), 0);
 
-    return totalGanancia; 
+    return totalGanancia;
   } catch (error) {
     console.error("Error al calcular la ganancia mensual:", error);
     return 0;
@@ -329,7 +330,7 @@ export const getPedidosEntregadosMensual = async (): Promise<number> => {
       .filter((pedido: any) => pedido.Estado?.toLowerCase() === "entregado")
       .length;
 
-    return cantidadEntregados; 
+    return cantidadEntregados;
   } catch (error) {
     console.error("Error al contar pedidos entregados:", error);
     return 0;

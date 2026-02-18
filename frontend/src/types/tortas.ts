@@ -24,10 +24,14 @@ export interface Medida {
   IdTorta: number;
   Tamano: string;
   Estado: string;
+  MultiplicadorGanancia: number;
+  PrecioVentaManual?: number | null;
   CostoIngredientes: number;
   CostoExtras: number;
   CostoTotal: number;
+  PrecioSugerido: number;
   PrecioVenta: number;
+  MultiplicadorReal: number;
   Ganancia: number;
 }
 
@@ -40,6 +44,7 @@ export interface Torta {
   IdTorta: number;
   Nombre: string;
   Estado: string;
+  MultiplicadorGanancia: number;
   Medidas: Medida[];
   PrecioPromedio: number;
   CantidadMedidas: number;

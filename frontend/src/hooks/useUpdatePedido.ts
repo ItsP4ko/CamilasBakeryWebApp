@@ -43,14 +43,14 @@ export const useUpdatePedido = () => {
     // ✅ Actualización optimista (UI instantánea)
     onMutate: async (pedidoActualizado) => {
       // Cancela cualquier refetch en curso
-      await queryClient.cancelQueries({ queryKey: ['pedidos'] });
+      await queryClient.cancelQueries({ queryKey: queryKeys.pedidos.all });
 
       // Guarda snapshot del estado anterior para rollback
-      const previousQueries = queryClient.getQueriesData({ queryKey: ['pedidos'] });
+      const previousQueries = queryClient.getQueriesData({ queryKey: queryKeys.pedidos.all });
 
       // Actualiza la cache optimistamente para todas las queries de pedidos
       queryClient.setQueriesData<PagedResult<PedidoResumen>>(
-        { queryKey: ['pedidos'] },
+        { queryKey: queryKeys.pedidos.all },
         (oldData) => {
           if (!oldData) return oldData;
 

@@ -40,26 +40,35 @@ export const TortaCard: React.FC<TortaCardProps> = memo(({
         scale: 1.02,
         transition: { duration: 0.2 },
       }}
-      className={`rounded-xl border-2 transition-all ${
-        disponible 
-          ? "cursor-pointer border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 hover:border-primary-400 dark:hover:border-primary-500" 
+      className={`rounded-xl border-2 transition-all ${disponible
+          ? "cursor-pointer border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 hover:border-primary-400 dark:hover:border-primary-500"
           : "cursor-pointer border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-500"
-      } ${isExpanded ? "shadow-lg" : "shadow-sm"}`}
+        } ${isExpanded ? "shadow-lg" : "shadow-sm"}`}
     >
       {/* Header simple */}
       <div className="p-6 text-center">
-        <h2 className={`text-2xl font-bold mb-2 ${
-          disponible ? "text-gray-900 dark:text-gray-100" : "text-gray-400 dark:text-gray-500"
-        }`}>
+        <h2 className={`text-2xl font-bold mb-2 ${disponible ? "text-gray-900 dark:text-gray-100" : "text-gray-400 dark:text-gray-500"
+          }`}>
           {torta.Nombre}
         </h2>
-        
-        <p className={`text-sm ${disponible ? "text-gray-600 dark:text-gray-400" : "text-gray-400 dark:text-gray-500"}`}>
-          {disponible 
-            ? `${torta.CantidadMedidas} ${torta.CantidadMedidas === 1 ? "tamaño disponible" : "tamaños disponibles"}`
-            : "No disponible"
-          }
-        </p>
+
+        <div className={`text-sm ${disponible ? "text-gray-600 dark:text-gray-400" : "text-gray-400 dark:text-gray-500"}`}>
+          <p className="mb-1">
+            {disponible
+              ? `${torta.CantidadMedidas} ${torta.CantidadMedidas === 1 ? "tamaño disponible" : "tamaños disponibles"}`
+              : "No disponible"
+            }
+          </p>
+          <p className="text-xs font-semibold text-primary-600 dark:text-primary-400">
+            Multiplicador: {(() => {
+              if (torta.Medidas.length === 0) return `${torta.MultiplicadorGanancia}x`;
+              const reales = torta.Medidas.map(m => m.MultiplicadorReal);
+              const min = Math.min(...reales);
+              const max = Math.max(...reales);
+              return min === max ? `${min}x` : `${min}x - ${max}x`;
+            })()}
+          </p>
+        </div>
       </div>
 
       {/* Contenido expandible */}
@@ -70,7 +79,7 @@ export const TortaCard: React.FC<TortaCardProps> = memo(({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ 
+            transition={{
               duration: 0.3,
               ease: "easeInOut"
             }}

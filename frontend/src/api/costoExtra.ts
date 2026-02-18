@@ -1,20 +1,28 @@
 import api from './http';
 import { CostoExtra, CreateCostoExtraDTO, UpdateCostoExtraDTO } from '../types/costoExtra';
 
-export const getCostosExtra = async (): Promise<CostoExtra[]> => {
-  const response = await api.get('/api/CostosExtra');
-  // Mapear los datos del backend al frontend
-  const data = Array.isArray(response.data) ? response.data : [];
-  return data.map((costo: any) => ({
-    idCostoExtra: costo.IdCostoExtra || costo.idCostoExtra,
-    nombre: costo.Nombre || costo.nombre,
-    precioUnitario: costo.PrecioUnitario || costo.precioUnitario,
-    nota: costo.Nota || costo.nota,
-    stock: costo.Stock ?? costo.stock ?? null
-  }));
+import { PagedResult } from '../types/pagination';
+
+export const getCostosExtra = async (page: number = 1, pageSize: number = 20): Promise<PagedResult<CostoExtra>> => {
+  const response = await api.get(`/api/CostosExtra?page=${page}&pageSize=${pageSize}`);
+  const data: any = response.data;
+
+  return {
+    items: (data.items || data.Items || []).map((costo: any) => ({
+      idCostoExtra: costo.IdCostoExtra || costo.idCostoExtra,
+      nombre: costo.Nombre || costo.nombre,
+      precioUnitario: costo.PrecioUnitario || costo.precioUnitario,
+      nota: costo.Nota || costo.nota,
+      stock: costo.Stock ?? costo.stock ?? null
+    })),
+    totalCount: data.totalCount ?? data.TotalCount ?? 0,
+    pageNumber: data.pageNumber ?? data.PageNumber ?? 1,
+    pageSize: data.pageSize ?? data.PageSize ?? 20,
+    totalPages: data.totalPages ?? data.TotalPages ?? 1
+  };
 };
 
-export const createCostoExtra = async (createCostoExtra : CreateCostoExtraDTO): Promise<CostoExtra> =>{
+export const createCostoExtra = async (createCostoExtra: CreateCostoExtraDTO): Promise<CostoExtra> => {
   const response = await api.post(`/api/CostosExtra`, createCostoExtra);
   // Mapear la respuesta del backend (PascalCase) al formato del frontend (camelCase)
   const data: any = response.data;

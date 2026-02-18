@@ -12,7 +12,7 @@ const GestionMedidas: React.FC = () => {
   const { tortaId } = useParams<{ tortaId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  
+
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -103,7 +103,7 @@ const GestionMedidas: React.FC = () => {
           <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           Volver a Tortas
         </button>
-        
+
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100">
           Gestión de Medidas - {torta.Nombre}
         </h1>
@@ -148,6 +148,12 @@ const GestionMedidas: React.FC = () => {
                   </p>
                   <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                     <span className="font-medium">Precio Venta:</span> ${medida.PrecioVenta.toFixed(2)}
+                    {medida.PrecioVentaManual != null && (
+                      <span className="ml-1 text-xs px-1.5 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded">manual</span>
+                    )}
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                    <span className="font-medium">Multiplicador Real:</span> x{medida.MultiplicadorReal}
                   </p>
                   <p className="text-xs sm:text-sm text-green-600 dark:text-green-400 font-medium">
                     <span>Ganancia:</span> ${medida.Ganancia.toFixed(2)}
@@ -166,7 +172,7 @@ const GestionMedidas: React.FC = () => {
                   <Edit2 className="w-3 h-3 sm:w-4 sm:h-4" />
                   Editar
                 </button>
-                
+
                 <button
                   onClick={() => {
                     setMedidaSeleccionada(medida);
@@ -177,7 +183,7 @@ const GestionMedidas: React.FC = () => {
                   <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                   Eliminar
                 </button>
-                
+
                 <button
                   onClick={() => handleModificarContenido(medida.IdMedida)}
                   className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded hover:bg-green-200 dark:hover:bg-green-900/50 text-xs sm:text-sm"

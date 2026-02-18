@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useIngredientes } from '@/hooks/useIngredientes';
-import Select from 'react-select'; 
+import Select from 'react-select';
 
 interface IngredienteExtra {
   idIngrediente: number;
   nombreIngrediente: string;
   cantidad: number;
   nota: string;
+  precioVentaManual?: number | null;
 }
 
 interface PopupAgregarIngredientesExtrasProps {
@@ -16,36 +17,42 @@ interface PopupAgregarIngredientesExtrasProps {
   onClose: () => void;
   onSave: (ingredientesExtras: IngredienteExtra[]) => void;
   ingredientesActuales?: IngredienteExtra[];
+  multiplicadorGanancia?: number;
 }
 
 const PopupAgregarIngredientesExtras: React.FC<PopupAgregarIngredientesExtrasProps> = ({
   isOpen,
   onClose,
   onSave,
-  ingredientesActuales = []
+  ingredientesActuales = [],
+  multiplicadorGanancia = 1
 }) => {
-  const { data: ingredientes, isLoading } = useIngredientes();
+  const { data: pagedResult, isLoading } = useIngredientes(1, 1000);
+  const ingredientes = pagedResult?.items || [];
   const [ingredientesExtras, setIngredientesExtras] = useState<IngredienteExtra[]>(ingredientesActuales);
   const [ingredienteSeleccionado, setIngredienteSeleccionado] = useState<any>(null);
-  const [cantidad, setCantidad] = useState<string>(''); 
+  const [cantidad, setCantidad] = useState<string>('');
   const [nota, setNota] = useState<string>('');
+  const [precioManual, setPrecioManual] = useState<string>('');
 
   const handleAgregarIngrediente = () => {
     if (!ingredienteSeleccionado) return;
 
-    const cantidadNum = parseFloat(cantidad) || 0; 
+    const cantidadNum = Number.parseFloat(cantidad) || 0;
 
     const nuevoIngredienteExtra: IngredienteExtra = {
       idIngrediente: ingredienteSeleccionado.value,
       nombreIngrediente: ingredienteSeleccionado.label,
       cantidad: cantidadNum,
-      nota: nota
+      nota: nota,
+      precioVentaManual: precioManual ? Number.parseFloat(precioManual) : null
     };
 
     setIngredientesExtras([...ingredientesExtras, nuevoIngredienteExtra]);
     setIngredienteSeleccionado(null);
     setCantidad('');
     setNota('');
+    setPrecioManual('');
   };
 
   const handleEliminarIngrediente = (index: number) => {
@@ -62,14 +69,21 @@ const PopupAgregarIngredientesExtras: React.FC<PopupAgregarIngredientesExtrasPro
     setIngredienteSeleccionado(null);
     setCantidad('');
     setNota('');
+    setPrecioManual('');
     onClose();
   };
 
   // Opciones para el selector de ingredientes
   const opciones = ingredientes?.map((i: any) => ({
     value: i.idIngrediente,
-    label: `${i.nombre} (${i.unidadCompra}) - $${i.precioUnitario?.toLocaleString('es-AR')}`
+    label: `${i.nombre} (${i.unidadCompra}) - $${i.precioUnitario?.toLocaleString('es-AR')}`,
+    precioBase: i.precioUnitario
   })) || [];
+
+  const cantidadNum = Number.parseFloat(cantidad) || 0;
+  const precioSugerido = ingredienteSeleccionado?.precioBase
+    ? ingredienteSeleccionado.precioBase * cantidadNum * multiplicadorGanancia
+    : 0;
 
   return (
     <AnimatePresence>
@@ -104,7 +118,7 @@ const PopupAgregarIngredientesExtras: React.FC<PopupAgregarIngredientesExtrasPro
               {/* Formulario para agregar nuevo ingrediente */}
               <div className="bg-green-50 dark:bg-gray-700 rounded-lg p-4 space-y-4">
                 <h4 className="font-semibold text-gray-900 dark:text-gray-100">Agregar nuevo ingrediente extra</h4>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Selector de ingrediente */}
                   <div className="md:col-span-2">
@@ -135,7 +149,7 @@ const PopupAgregarIngredientesExtras: React.FC<PopupAgregarIngredientesExtrasPro
                         }),
                         option: (base, state) => ({
                           ...base,
-                          backgroundColor: state.isFocused 
+                          backgroundColor: state.isFocused
                             ? (document.documentElement.classList.contains('dark') ? '#4b5563' : '#f3f4f6')
                             : (document.documentElement.classList.contains('dark') ? '#374151' : 'white'),
                           color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#111827',
@@ -168,7 +182,7 @@ const PopupAgregarIngredientesExtras: React.FC<PopupAgregarIngredientesExtrasPro
                       type="number"
                       step="0.01"
                       value={cantidad}
-                      onChange={(e) => setCantidad(e.target.value)} 
+                      onChange={(e) => setCantidad(e.target.value)}
                       placeholder="Ej: 0.5, 1, 5, ..."
                       className="w-full px-4 py-2.5 bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-500 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
                     />
@@ -217,6 +231,7 @@ const PopupAgregarIngredientesExtras: React.FC<PopupAgregarIngredientesExtrasPro
                           <p className="text-sm text-gray-600 dark:text-gray-400">
                             Cantidad: {ingrediente.cantidad}
                             {ingrediente.nota && ` • Nota: ${ingrediente.nota}`}
+                            {ingrediente.precioVentaManual != null && ` • Precio Override: $${ingrediente.precioVentaManual}`}
                           </p>
                         </div>
                         <button

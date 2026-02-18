@@ -31,8 +31,7 @@ const Tortas: React.FC = () => {
     torta.Nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Obtener el nombre de la torta seleccionada
-  const tortaSeleccionadaNombre = data.find(t => t.IdTorta === tortaSeleccionada)?.Nombre;
+
 
   // Función para ir a gestión de medidas
   const handleGestionarMedidas = (tortaId: number) => {
@@ -69,15 +68,14 @@ const Tortas: React.FC = () => {
              focus:ring-2 focus:ring-primary-400 focus:border-transparent 
              outline-none"/>
         </div>
-        
+
         {/* Botones de gestión integrados */}
         <div className="flex items-center justify-between">
           <span className="text-sm text-gray-600 dark:text-gray-400">
             Mostrando {filteredData.length} de {data?.length || 0} tortas
           </span>
           <BotonesGestionTorta
-            tortaSeleccionadaId={tortaSeleccionada}
-            tortaSeleccionadaNombre={tortaSeleccionadaNombre}
+            tortaSeleccionada={data.find(t => t.IdTorta === tortaSeleccionada) || null}
           />
         </div>
       </motion.div>

@@ -17,6 +17,9 @@ interface ResponsiveTableProps {
   keyExtractor: (row: any) => string | number;
   mobileCardTitle?: (row: any) => string;
   mobileCardSubtitle?: (row: any) => string;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
 }
 
 const ResponsiveTable: React.FC<ResponsiveTableProps> = ({
@@ -29,6 +32,9 @@ const ResponsiveTable: React.FC<ResponsiveTableProps> = ({
   keyExtractor,
   mobileCardTitle,
   mobileCardSubtitle,
+  currentPage,
+  totalPages,
+  onPageChange,
 }) => {
   if (isLoading) {
     return <div className="p-6 text-center dark:text-gray-400">Cargando...</div>;
@@ -162,6 +168,35 @@ const ResponsiveTable: React.FC<ResponsiveTableProps> = ({
           </tbody>
         </table>
       </div>
+
+      {/* Pagination Controls */}
+      {currentPage && totalPages && onPageChange && totalPages > 1 && (
+        <div className="flex justify-between items-center mt-4 px-2">
+          <button
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={`px-4 py-2 rounded-md ${currentPage === 1
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'
+                : 'bg-primary-500 text-white hover:bg-primary-600 dark:bg-primary-600 dark:hover:bg-primary-700'
+              }`}
+          >
+            Anterior
+          </button>
+          <span className="text-gray-700 dark:text-gray-300">
+            Página {currentPage} de {totalPages}
+          </span>
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={`px-4 py-2 rounded-md ${currentPage === totalPages
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'
+                : 'bg-primary-500 text-white hover:bg-primary-600 dark:bg-primary-600 dark:hover:bg-primary-700'
+              }`}
+          >
+            Siguiente
+          </button>
+        </div>
+      )}
     </>
   );
 };

@@ -22,7 +22,8 @@ const PopupAgregarIngredienteMedida: React.FC<PopupAgregarIngredienteMedidaProps
   onClose,
   onSave,
 }) => {
-  const { data: ingredientes, isLoading } = useIngredientes();
+  const { data: pagedResult, isLoading } = useIngredientes(1, 1000);
+  const ingredientes = pagedResult?.items || [];
   const [ingredienteSeleccionado, setIngredienteSeleccionado] = useState<any>(null);
   const [cantidad, setCantidad] = useState<string>('');
   const [unidad, setUnidad] = useState<string>('');
@@ -30,7 +31,7 @@ const PopupAgregarIngredienteMedida: React.FC<PopupAgregarIngredienteMedidaProps
   const handleAgregar = () => {
     if (!ingredienteSeleccionado || !cantidad || !unidad) return;
 
-    const cantidadNum = parseFloat(cantidad) || 0;
+    const cantidadNum = Number.parseFloat(cantidad) || 0;
 
     const nuevoIngrediente: IngredienteSeleccionado = {
       idIngrediente: ingredienteSeleccionado.value,
@@ -122,7 +123,7 @@ const PopupAgregarIngredienteMedida: React.FC<PopupAgregarIngredienteMedidaProps
                     }),
                     option: (base, state) => ({
                       ...base,
-                      backgroundColor: state.isFocused 
+                      backgroundColor: state.isFocused
                         ? (document.documentElement.classList.contains('dark') ? '#4b5563' : '#f3f4f6')
                         : (document.documentElement.classList.contains('dark') ? '#374151' : 'white'),
                       color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#111827',
@@ -154,10 +155,11 @@ const PopupAgregarIngredienteMedida: React.FC<PopupAgregarIngredienteMedidaProps
                   </label>
                   <input
                     type="number"
-                    step="0.01"
+                    step="0.001"
+                    min="0.001"
                     value={cantidad}
                     onChange={(e) => setCantidad(e.target.value)}
-                    placeholder="Ej: 0.5, 1, 2.5..."
+                    placeholder="Ej: 0.5, 1, 0.255..."
                     className="w-full px-4 py-2.5 bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-500 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                   />
                 </div>

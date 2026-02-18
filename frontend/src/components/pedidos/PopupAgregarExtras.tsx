@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCostoExtra } from '@/hooks/useCostoExtra';
-import Select from 'react-select'; 
+import Select from 'react-select';
 
 interface Extra {
   idCostoExtra: number;
   nombreCostoExtra: string;
   cantidad: number;
   nota: string;
+  precioVentaManual?: number | null;
 }
 
 interface PopupAgregarExtrasProps {
@@ -16,36 +17,42 @@ interface PopupAgregarExtrasProps {
   onClose: () => void;
   onSave: (extras: Extra[]) => void;
   extrasActuales?: Extra[];
+  multiplicadorGanancia?: number;
 }
 
 const PopupAgregarExtras: React.FC<PopupAgregarExtrasProps> = ({
   isOpen,
   onClose,
   onSave,
-  extrasActuales = []
+  extrasActuales = [],
+  multiplicadorGanancia = 1
 }) => {
-  const { data: costosExtra, isLoading } = useCostoExtra();
+  const { data: costosExtraResult, isLoading } = useCostoExtra(1, 1000);
+  const costosExtra = costosExtraResult?.items || [];
   const [extras, setExtras] = useState<Extra[]>(extrasActuales);
   const [costoExtraSeleccionado, setCostoExtraSeleccionado] = useState<any>(null);
-  const [cantidad, setCantidad] = useState<string>(''); 
+  const [cantidad, setCantidad] = useState<string>('');
   const [nota, setNota] = useState<string>('');
+  const [precioManual, setPrecioManual] = useState<string>('');
 
   const handleAgregarExtra = () => {
     if (!costoExtraSeleccionado) return;
 
-    const cantidadNum = parseFloat(cantidad) || 0;
+    const cantidadNum = Number.parseFloat(cantidad) || 0;
 
     const nuevoExtra: Extra = {
       idCostoExtra: costoExtraSeleccionado.value,
       nombreCostoExtra: costoExtraSeleccionado.label,
       cantidad: cantidadNum,
-      nota: nota
+      nota: nota,
+      precioVentaManual: precioManual ? Number.parseFloat(precioManual) : null
     };
 
     setExtras([...extras, nuevoExtra]);
     setCostoExtraSeleccionado(null);
     setCantidad('');
     setNota('');
+    setPrecioManual('');
   };
 
   const handleEliminarExtra = (index: number) => {
@@ -62,14 +69,21 @@ const PopupAgregarExtras: React.FC<PopupAgregarExtrasProps> = ({
     setCostoExtraSeleccionado(null);
     setCantidad('');
     setNota('');
+    setPrecioManual('');
     onClose();
   };
 
   // 🔍 Opciones para react-select
   const opciones = costosExtra?.map((c: any) => ({
     value: c.idCostoExtra,
-    label: `${c.nombre} - $${c.precioUnitario?.toLocaleString('es-AR')}`
+    label: `${c.nombre} - $${c.precioUnitario?.toLocaleString('es-AR')}`,
+    precioBase: c.precioUnitario
   })) || [];
+
+  const cantidadNum = parseFloat(cantidad) || 0;
+  const precioSugerido = costoExtraSeleccionado?.precioBase
+    ? costoExtraSeleccionado.precioBase * cantidadNum * multiplicadorGanancia
+    : 0;
 
   return (
     <AnimatePresence>
@@ -104,7 +118,7 @@ const PopupAgregarExtras: React.FC<PopupAgregarExtrasProps> = ({
               {/* Formulario para agregar extra */}
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-4">
                 <h4 className="font-semibold text-gray-900 dark:text-gray-100">Agregar nuevo extra</h4>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Buscador React Select */}
                   <div className="md:col-span-2">
@@ -135,7 +149,7 @@ const PopupAgregarExtras: React.FC<PopupAgregarExtrasProps> = ({
                         }),
                         option: (base, state) => ({
                           ...base,
-                          backgroundColor: state.isFocused 
+                          backgroundColor: state.isFocused
                             ? (document.documentElement.classList.contains('dark') ? '#4b5563' : '#f3f4f6')
                             : (document.documentElement.classList.contains('dark') ? '#374151' : 'white'),
                           color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#111827',
@@ -189,6 +203,23 @@ const PopupAgregarExtras: React.FC<PopupAgregarExtrasProps> = ({
                   />
                 </div>
 
+                {/* Precio Manual */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Precio Manual (Sugerido: ${precioSugerido.toLocaleString('es-AR')})
+                  </label>
+                  <input
+                    type="number"
+                    value={precioManual}
+                    onChange={(e) => setPrecioManual(e.target.value)}
+                    placeholder={`$${precioSugerido.toFixed(2)}`}
+                    className="w-full px-4 py-2.5 bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-500 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Dejar vacío para usar precio calculado automáticamente.
+                  </p>
+                </div>
+
                 {/* Botón agregar */}
                 <button
                   onClick={handleAgregarExtra}
@@ -217,6 +248,7 @@ const PopupAgregarExtras: React.FC<PopupAgregarExtrasProps> = ({
                           <p className="text-sm text-gray-600 dark:text-gray-400">
                             Cantidad: {extra.cantidad}
                             {extra.nota && ` • Nota: ${extra.nota}`}
+                            {extra.precioVentaManual != null && ` • Precio Override: $${extra.precioVentaManual}`}
                           </p>
                         </div>
                         <button

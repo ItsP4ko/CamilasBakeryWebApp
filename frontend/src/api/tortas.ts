@@ -9,6 +9,7 @@ export const getTortas = async (): Promise<Torta[]> => {
     IdTorta: torta.IdTorta ?? torta.idTorta,
     Nombre: torta.Nombre ?? torta.nombre,
     Estado: torta.Estado ?? torta.estado ?? '',
+    MultiplicadorGanancia: torta.MultiplicadorGanancia ?? torta.multiplicadorGanancia ?? 2.7,
     PrecioPromedio: torta.PrecioPromedio ?? torta.precioPromedio ?? 0,
     CantidadMedidas: torta.CantidadMedidas ?? torta.cantidadMedidas ?? 0,
     Medidas: (torta.Medidas ?? torta.medidas ?? []).map((m: any): Medida => ({
@@ -16,10 +17,14 @@ export const getTortas = async (): Promise<Torta[]> => {
       IdTorta: m.IdTorta ?? m.idTorta,
       Tamano: m.Tamano ?? m.tamano,
       Estado: m.Estado ?? m.estado ?? '',
+      MultiplicadorGanancia: m.MultiplicadorGanancia ?? m.multiplicadorGanancia ?? 2.7,
+      PrecioVentaManual: m.PrecioVentaManual ?? m.precioVentaManual ?? null,
       CostoIngredientes: m.CostoIngredientes ?? m.costoIngredientes ?? 0,
       CostoExtras: m.CostoExtras ?? m.costoExtras ?? 0,
       CostoTotal: m.CostoTotal ?? m.costoTotal ?? 0,
+      PrecioSugerido: m.PrecioSugerido ?? m.precioSugerido ?? 0,
       PrecioVenta: m.PrecioVenta ?? m.precioVenta ?? 0,
+      MultiplicadorReal: m.MultiplicadorReal ?? m.multiplicadorReal ?? 0,
       Ganancia: m.Ganancia ?? m.ganancia ?? 0,
     })),
   }));
@@ -33,16 +38,18 @@ export const getCantidadTortas = async (): Promise<number> => {
 };
 
 // CRUD Tortas
-export const createTorta = async (nombre: string): Promise<Torta> => {
-  const response = await api.post('/api/Tortas', JSON.stringify(nombre), {
-    headers: { 'Content-Type': 'application/json' }
+export const createTorta = async (nombre: string, multiplicadorGanancia?: number): Promise<Torta> => {
+  const response = await api.post('/api/Tortas', {
+    Nombre: nombre,
+    MultiplicadorGanancia: multiplicadorGanancia
   });
   return response.data as Torta;
 };
 
-export const updateTorta = async (id: number, nombre: string): Promise<void> => {
-  await api.put(`/api/Tortas/${id}`, JSON.stringify(nombre), {
-    headers: { 'Content-Type': 'application/json' }
+export const updateTorta = async (id: number, nombre?: string, multiplicadorGanancia?: number): Promise<void> => {
+  await api.put(`/api/Tortas/${id}`, {
+    Nombre: nombre,
+    MultiplicadorGanancia: multiplicadorGanancia
   });
 };
 
@@ -71,6 +78,12 @@ export const updateMedida = async (medidaId: number, tamano: string): Promise<vo
 
 export const deleteMedida = async (medidaId: number): Promise<void> => {
   await api.delete(`/api/Tortas/medidas/${medidaId}`);
+};
+
+export const updatePrecioVentaMedida = async (medidaId: number, precioVentaManual: number | null): Promise<void> => {
+  await api.put(`/api/Tortas/medidas/${medidaId}/precio`, {
+    PrecioVentaManual: precioVentaManual
+  });
 };
 
 // Ingredientes de Medida

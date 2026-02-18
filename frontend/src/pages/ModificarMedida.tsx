@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, Plus, Edit2, Trash2, Package, DollarSign } from 'lucide-react';
+import { ArrowLeft, Plus, Edit2, Trash2, Package, DollarSign, Save, RotateCcw } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import {
   getMedida,
@@ -11,6 +11,7 @@ import {
   removeIngredienteFromMedida,
   addCostoExtraToMedida,
   removeCostoExtraFromMedida,
+  updatePrecioVentaMedida,
 } from '@/api/tortas';
 import { useCostoExtra } from '@/hooks/useCostoExtra';
 import PopupAgregarIngredienteMedida from '@/components/tortas/PopupAgregarIngredienteMedida';
@@ -32,20 +33,22 @@ const ModificarMedida: React.FC = () => {
   const [costoSeleccionado, setCostoSeleccionado] = useState<any>(null);
   const [costoExtraSeleccionado, setCostoExtraSeleccionado] = useState<any>(null);
   const [cantidadCosto, setCantidadCosto] = useState<string>('');
+  const [precioInput, setPrecioInput] = useState<string>('');
 
   // Queries
   const { data: medida, isLoading } = useQuery<MedidaDetalle>({
     queryKey: ['medida', medidaId],
-    queryFn: () => getMedida(parseInt(medidaId || '0')),
+    queryFn: () => getMedida(Number.parseInt(medidaId || '0')),
     enabled: !!medidaId,
   });
 
-  const { data: costosExtra } = useCostoExtra();
+  const { data: costosExtraResult } = useCostoExtra(1, 1000);
+  const costosExtra = costosExtraResult?.items || [];
 
   // Mutations
   const addIngredienteMutation = useMutation({
     mutationFn: (data: { ingredienteId: number; cantidad: number; unidad: string }) =>
-      addIngredienteToMedida(parseInt(medidaId || '0'), data.ingredienteId, data.cantidad, data.unidad),
+      addIngredienteToMedida(Number.parseInt(medidaId || '0'), data.ingredienteId, data.cantidad, data.unidad),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['medida', medidaId] });
       queryClient.invalidateQueries({ queryKey: ['tortas'] });
@@ -85,7 +88,7 @@ const ModificarMedida: React.FC = () => {
 
   const addCostoMutation = useMutation({
     mutationFn: (data: { costoExtraId: number; cantidad: number }) =>
-      addCostoExtraToMedida(parseInt(medidaId || '0'), data.costoExtraId, data.cantidad),
+      addCostoExtraToMedida(Number.parseInt(medidaId || '0'), data.costoExtraId, data.cantidad),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['medida', medidaId] });
       queryClient.invalidateQueries({ queryKey: ['tortas'] });
@@ -125,7 +128,7 @@ const ModificarMedida: React.FC = () => {
     if (ingredienteSeleccionado) {
       updateIngredienteMutation.mutate({
         id: ingredienteSeleccionado.IdMedidaIngrediente,
-        cantidad: parseFloat(values.cantidad),
+        cantidad: Number.parseFloat(values.cantidad),
         unidad: values.unidad,
       });
     }
@@ -142,7 +145,7 @@ const ModificarMedida: React.FC = () => {
     if (costoExtraSeleccionado && cantidadCosto) {
       addCostoMutation.mutate({
         costoExtraId: costoExtraSeleccionado.value,
-        cantidad: parseFloat(cantidadCosto),
+        cantidad: Number.parseFloat(cantidadCosto),
       });
     }
   };
@@ -153,6 +156,54 @@ const ModificarMedida: React.FC = () => {
       setCostoSeleccionado(null);
     }
   };
+
+  // Precio manual mutation
+  const updatePrecioMutation = useMutation({
+    mutationFn: (precio: number | null) =>
+      updatePrecioVentaMedida(Number.parseInt(medidaId || '0'), precio),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['medida', medidaId] });
+      queryClient.invalidateQueries({ queryKey: ['tortas'] });
+      toast.success('Precio actualizado exitosamente');
+    },
+    onError: () => {
+      toast.error('Error al actualizar el precio');
+    },
+  });
+
+  // Inicializar el input de precio cuando carga la medida
+  useEffect(() => {
+    if (medida) {
+      setPrecioInput(
+        medida.PrecioVentaManual != null
+          ? medida.PrecioVentaManual.toString()
+          : ''
+      );
+    }
+  }, [medida]);
+
+  const handleGuardarPrecio = () => {
+    const precio = precioInput.trim() === '' ? null : Number.parseFloat(precioInput);
+    if (precio !== null && (Number.isNaN(precio) || precio < 0)) {
+      toast.error('Ingrese un precio válido');
+      return;
+    }
+    updatePrecioMutation.mutate(precio);
+  };
+
+  const handleResetPrecio = () => {
+    setPrecioInput('');
+    updatePrecioMutation.mutate(null);
+  };
+
+  // Calcular multiplicador real en frontend para preview
+  const precioActual = precioInput.trim() === ''
+    ? (medida?.PrecioSugerido ?? 0)
+    : (Number.parseFloat(precioInput) || 0);
+  const multiplicadorPreview = medida && medida.CostoTotal > 0
+    ? (precioActual / medida.CostoTotal).toFixed(2)
+    : (medida?.MultiplicadorGanancia ?? 2.7).toFixed(2);
+  const gananciaPreview = medida ? precioActual - medida.CostoTotal : 0;
 
   // Opciones para el selector de costos extra
   const opcionesCostos = costosExtra?.map((c: any) => ({
@@ -336,15 +387,72 @@ const ModificarMedida: React.FC = () => {
                   <span>${medida.CostoTotal.toFixed(2)}</span>
                 </div>
               </div>
+
+              {/* Precio Sugerido */}
               <div className="border-t border-gray-400 dark:border-gray-600 pt-3">
-                <div className="flex justify-between">
-                  <span>Precio Venta (x2.7):</span>
-                  <span className="font-medium">${medida.PrecioVenta.toFixed(2)}</span>
+                <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
+                  <span>Precio Sugerido (x{medida.MultiplicadorGanancia}):</span>
+                  <span>${medida.PrecioSugerido.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-green-600 dark:text-green-400 font-bold mt-2">
-                  <span>Ganancia:</span>
-                  <span>${medida.Ganancia.toFixed(2)}</span>
+              </div>
+
+              {/* Precio Real Editable */}
+              <div className="border-t border-gray-400 dark:border-gray-600 pt-3 space-y-2">
+                <label htmlFor="precioManual" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Precio Real:
+                </label>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+                    <input
+                      id="precioManual"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={precioInput}
+                      onChange={(e) => setPrecioInput(e.target.value)}
+                      placeholder={medida.PrecioSugerido.toFixed(2)}
+                      className="w-full pl-7 pr-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-500 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-right"
+                    />
+                  </div>
+                  <button
+                    onClick={handleGuardarPrecio}
+                    disabled={updatePrecioMutation.isPending}
+                    className="p-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:bg-gray-300 dark:disabled:bg-gray-600"
+                    title="Guardar precio"
+                  >
+                    <Save className="w-4 h-4" />
+                  </button>
+                  {medida.PrecioVentaManual != null && (
+                    <button
+                      onClick={handleResetPrecio}
+                      disabled={updatePrecioMutation.isPending}
+                      className="p-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 disabled:bg-gray-300 dark:disabled:bg-gray-600"
+                      title="Usar precio automático"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
+                {medida.PrecioVentaManual != null && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400">
+                    ⚡ Precio manual activo
+                  </p>
+                )}
+              </div>
+
+              {/* Multiplicador Real */}
+              <div className="flex justify-between text-sm">
+                <span>Multiplicador Real:</span>
+                <span className={`font-bold ${Number(multiplicadorPreview) >= medida.MultiplicadorGanancia ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                  x{multiplicadorPreview}
+                </span>
+              </div>
+
+              {/* Ganancia */}
+              <div className={`flex justify-between font-bold mt-2 ${gananciaPreview >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                <span>Ganancia:</span>
+                <span>${gananciaPreview.toFixed(2)}</span>
               </div>
             </div>
           </motion.div>
@@ -403,7 +511,7 @@ const ModificarMedida: React.FC = () => {
                       }),
                       option: (base, state) => ({
                         ...base,
-                        backgroundColor: state.isFocused 
+                        backgroundColor: state.isFocused
                           ? (document.documentElement.classList.contains('dark') ? '#4b5563' : '#f3f4f6')
                           : (document.documentElement.classList.contains('dark') ? '#374151' : 'white'),
                         color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#111827',
@@ -432,11 +540,12 @@ const ModificarMedida: React.FC = () => {
                   </label>
                   <input
                     type="number"
-                    step="0.01"
+                    step="0.001"
+                    min="0.001"
                     value={cantidadCosto}
                     onChange={(e) => setCantidadCosto(e.target.value)}
                     className="w-full px-4 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-500 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
-                    placeholder="Ej: 1, 0.5..."
+                    placeholder="Ej: 1, 0.5, 0.255..."
                   />
                 </div>
               </div>
@@ -504,8 +613,8 @@ const ModificarMedida: React.FC = () => {
                   <input
                     name="cantidad"
                     type="number"
-                    step="0.01"
-                    min="0.01"
+                    step="0.001"
+                    min="0.001"
                     defaultValue={ingredienteSeleccionado.CantidadUsada}
                     required
                     className="w-full px-4 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-500 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"

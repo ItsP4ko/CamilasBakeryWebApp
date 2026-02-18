@@ -15,6 +15,7 @@ interface Extra {
   nombreCostoExtra: string;
   nota: string;
   cantidad: number;
+  precioVentaManual?: number | null;
 }
 
 interface IngredienteExtra {
@@ -22,6 +23,7 @@ interface IngredienteExtra {
   nombreIngrediente: string;
   nota: string;
   cantidad: number;
+  precioVentaManual?: number | null;
 }
 
 interface ProductoPedido {
@@ -31,6 +33,7 @@ interface ProductoPedido {
   cantidad: number;
   extras: Extra[];
   ingredientesExtras: IngredienteExtra[];
+  multiplicadorGanancia: number;
 }
 
 const CrearPedido: React.FC = () => {
@@ -43,7 +46,7 @@ const CrearPedido: React.FC = () => {
   const [nota, setNota] = useState('');
   const [metodoDePago, setMetodoDePago] = useState('Definir');
   const [productos, setProductos] = useState<ProductoPedido[]>([]);
-  
+
   // Estados para popups
   const [popupProductoOpen, setPopupProductoOpen] = useState(false);
   const [popupExtrasOpen, setPopupExtrasOpen] = useState(false);
@@ -52,7 +55,7 @@ const CrearPedido: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     console.log('🎯 [CrearPedido] handleSubmit iniciado');
     console.log('📊 [CrearPedido] Estado actual:', {
       nombreCliente,
@@ -62,7 +65,7 @@ const CrearPedido: React.FC = () => {
       metodoDePago,
       cantidadProductos: productos.length
     });
-    
+
     if (productos.length === 0) {
       console.warn('⚠️ [CrearPedido] No hay productos, mostrando alerta');
       alert('Debe agregar al menos un producto al pedido');
@@ -84,19 +87,21 @@ const CrearPedido: React.FC = () => {
         extras: p.extras.map(e => ({
           idCostoExtra: e.idCostoExtra,
           cantidad: e.cantidad,
-          nota: e.nota
+          nota: e.nota,
+          precioVentaManual: e.precioVentaManual
         })),
         ingredientesExtras: p.ingredientesExtras.map(i => ({
           idIngrediente: i.idIngrediente,
           cantidad: i.cantidad,
-          nota: i.nota
+          nota: i.nota,
+          precioVentaManual: i.precioVentaManual
         }))
       }))
     };
-    
+
     console.log('📝 [CrearPedido] DTO construido:', JSON.stringify(pedidoDTO, null, 2));
     console.log('🚀 [CrearPedido] Llamando a crearPedidoMutation.mutate()');
-    
+
     crearPedidoMutation.mutate(pedidoDTO, {
       onSuccess: () => {
         console.log('✅ [CrearPedido] Pedido creado exitosamente, navegando a /pedidos');
@@ -107,7 +112,7 @@ const CrearPedido: React.FC = () => {
         console.error('❌ [CrearPedido] Error response:', error.response?.data);
       }
     });
-    
+
     console.log('🔄 [CrearPedido] Mutation enviada, esperando respuesta...');
   };
 
@@ -192,13 +197,14 @@ const CrearPedido: React.FC = () => {
               <h2 className="text-lg font-semibold text-primary-900 dark:text-white mb-3">
                 Información del Cliente
               </h2>
-              
+
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-primary-700 dark:text-gray-300 mb-2">
+                  <label htmlFor="nombreCliente" className="block text-sm font-medium text-primary-700 dark:text-gray-300 mb-2">
                     Nombre del Cliente *
                   </label>
                   <input
+                    id="nombreCliente"
                     type="text"
                     value={nombreCliente}
                     onChange={(e) => setNombreCliente(e.target.value)}
@@ -209,14 +215,14 @@ const CrearPedido: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-primary-700 dark:text-gray-300 mb-2">
-                    Teléfono *
+                  <label htmlFor="telefono" className="block text-sm font-medium text-primary-700 dark:text-gray-300 mb-2">
+                    Teléfono (Opcional)
                   </label>
                   <input
+                    id="telefono"
                     type="tel"
                     value={telefonoCliente}
                     onChange={(e) => setTelefonoCliente(e.target.value)}
-                    required
                     className="w-full px-4 py-2.5 bg-primary-50 dark:bg-gray-700 text-primary-900 dark:text-gray-100 border border-primary-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
                     placeholder="Ej: 3413456789"
                   />
@@ -229,13 +235,14 @@ const CrearPedido: React.FC = () => {
               <h2 className="text-lg font-semibold text-primary-900 dark:text-white mb-3">
                 Detalles del Pedido
               </h2>
-              
+
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-primary-700 dark:text-gray-300 mb-2">
+                  <label htmlFor="fecha" className="block text-sm font-medium text-primary-700 dark:text-gray-300 mb-2">
                     Fecha de Entrega *
                   </label>
                   <input
+                    id="fecha"
                     type="date"
                     value={fecha}
                     onChange={(e) => setFecha(e.target.value)}
@@ -245,10 +252,11 @@ const CrearPedido: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-primary-700 dark:text-gray-300 mb-2">
+                  <label htmlFor="metodoDePago" className="block text-sm font-medium text-primary-700 dark:text-gray-300 mb-2">
                     Método de Pago *
                   </label>
                   <select
+                    id="metodoDePago"
                     value={metodoDePago}
                     onChange={(e) => setMetodoDePago(e.target.value)}
                     required
@@ -294,7 +302,7 @@ const CrearPedido: React.FC = () => {
                 Agregar Producto
               </button>
             </div>
-            
+
             {productos.length === 0 ? (
               <div className="bg-primary-50 dark:bg-gray-700 rounded-lg p-6 text-center text-primary-600 dark:text-gray-400">
                 <p>No hay productos agregados</p>
@@ -354,7 +362,7 @@ const CrearPedido: React.FC = () => {
                         </div>
                       </div>
                     )}
-                    
+
                     <div className="flex gap-2">
                       <button
                         type="button"
@@ -421,6 +429,7 @@ const CrearPedido: React.FC = () => {
             }}
             onSave={handleGuardarExtras}
             extrasActuales={productoEditandoIndex !== null ? productos[productoEditandoIndex].extras : []}
+            multiplicadorGanancia={productoEditandoIndex !== null ? productos[productoEditandoIndex].multiplicadorGanancia : undefined}
           />
         </Suspense>
       )}
@@ -436,6 +445,7 @@ const CrearPedido: React.FC = () => {
             }}
             onSave={handleGuardarIngredientes}
             ingredientesActuales={productoEditandoIndex !== null ? productos[productoEditandoIndex].ingredientesExtras : []}
+            multiplicadorGanancia={productoEditandoIndex !== null ? productos[productoEditandoIndex].multiplicadorGanancia : undefined}
           />
         </Suspense>
       )}

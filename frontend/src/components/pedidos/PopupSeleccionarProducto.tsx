@@ -33,11 +33,12 @@ const PopupSeleccionarProducto: React.FC<PopupSeleccionarProductoProps> = ({
       idMedida: medida.idMedidaDetalle,
       nombreTorta: tortaSeleccionada!.nombre,
       nombreMedida: medida.tamano,
-      cantidad: typeof cantidad === 'string' ? parseInt(cantidad) || 1 : cantidad,
+      cantidad: typeof cantidad === 'string' ? Number.parseInt(cantidad) || 1 : cantidad,
       extras: [],
-      ingredientesExtras: []
+      ingredientesExtras: [],
+      multiplicadorGanancia: tortaSeleccionada!.multiplicadorGanancia
     };
-    
+
     onSelect(producto);
     handleClose();
   };
@@ -84,40 +85,7 @@ const PopupSeleccionarProducto: React.FC<PopupSeleccionarProductoProps> = ({
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-6">
-              {!tortaSeleccionada ? (
-                /* Lista de Tortas */
-                <div className="space-y-4">
-                  {/* Búsqueda */}
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400 w-5 h-5" />
-                    <input
-                      type="text"
-                      placeholder="Buscar torta..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
-                    />
-                  </div>
-
-                  {/* Lista de tortas */}
-                  {loadingTortas ? (
-                    <div className="text-center py-8 text-gray-600 dark:text-gray-400">Cargando tortas...</div>
-                  ) : (
-                    <div className="space-y-2">
-                      {tortasFiltradas?.map((torta: any) => (
-                        <button
-                          key={torta.idTorta}
-                          onClick={() => setTortaSeleccionada(torta)}
-                          className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors text-left"
-                        >
-                          <span className="font-medium text-gray-900 dark:text-gray-100">{torta.nombre}</span>
-                          <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : (
+              {tortaSeleccionada ? (
                 /* Lista de Medidas */
                 <div className="space-y-4">
                   {/* Botón volver */}
@@ -141,7 +109,7 @@ const PopupSeleccionarProducto: React.FC<PopupSeleccionarProductoProps> = ({
                         const val = e.target.value;
                         // Permitir string vacío o solo números
                         if (val === '' || /^\d+$/.test(val)) {
-                          setCantidad(val === '' ? '' : parseInt(val));
+                          setCantidad(val === '' ? '' : Number.parseInt(val));
                         }
                       }}
                       onBlur={() => {
@@ -175,6 +143,39 @@ const PopupSeleccionarProducto: React.FC<PopupSeleccionarProductoProps> = ({
                               ${medida.precio?.toLocaleString('es-AR')}
                             </span>
                           </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                /* Lista de Tortas */
+                <div className="space-y-4">
+                  {/* Búsqueda */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400 w-5 h-5" />
+                    <input
+                      type="text"
+                      placeholder="Buscar torta..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+                    />
+                  </div>
+
+                  {/* Lista de tortas */}
+                  {loadingTortas ? (
+                    <div className="text-center py-8 text-gray-600 dark:text-gray-400">Cargando tortas...</div>
+                  ) : (
+                    <div className="space-y-2">
+                      {tortasFiltradas?.map((torta: any) => (
+                        <button
+                          key={torta.idTorta}
+                          onClick={() => setTortaSeleccionada(torta)}
+                          className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors text-left"
+                        >
+                          <span className="font-medium text-gray-900 dark:text-gray-100">{torta.nombre}</span>
+                          <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                         </button>
                       ))}
                     </div>

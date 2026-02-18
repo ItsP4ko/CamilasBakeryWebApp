@@ -4,7 +4,7 @@ import { Torta } from '../types/tortas';
 
 export function useTortas() {
   return useQuery<Torta[]>({
-    queryKey: ['tortas'],
+    queryKey: queryKeys.tortas.all,
     queryFn: getTortas,
   });
 }
