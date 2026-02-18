@@ -59,6 +59,8 @@ export const queryKeys = {
             [...queryKeys.pedidos.all, 'cliente', idCliente] as const,
         byFechaRange: (fechaInicio: string, fechaFin: string) =>
             [...queryKeys.pedidos.all, 'fecha-range', { fechaInicio, fechaFin }] as const,
+        filtered: (filters: any) =>
+            [...queryKeys.pedidos.all, 'filtered', filters] as const,
     },
 
     // ─── Clientes ────────────────────────────────────────────────────────────

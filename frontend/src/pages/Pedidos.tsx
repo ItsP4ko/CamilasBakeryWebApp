@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, lazy, Suspense } from "react";
-import { ShoppingBag, Clock, CheckCircle, DollarSign, Plus, ChevronLeft, ChevronRight, Search, Filter, ArrowUpLeft } from "lucide-react";
+import { Clock, CheckCircle, DollarSign, Plus, ChevronLeft, ChevronRight, Search, Filter, ArrowUpLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -10,7 +10,7 @@ import { useEliminarPedido } from "@/hooks/usePedidos";
 import { useDashboardMetrics } from "@/hooks/useDashboardMetrics";
 import { useUpdatePedido } from "@/hooks/useUpdatePedido";
 import * as api from "@/api/pedidos";
-import { PedidoResumen } from "@/types/pedidos";
+import { queryKeys } from "@/api/queryKeys";
 import { formatCurrency } from "@/utils/formatters";
 
 // ✅ Lazy load del popup (solo se carga cuando se abre)
@@ -38,7 +38,7 @@ const PedidosDashboard: React.FC = () => {
 
   // ✅ Hook optimizado: usa endpoints específicos según lo que esté activo
   const { data: pedidosData, isLoading } = useQuery({
-    queryKey: ['pedidos-filtrados', pageNumber, pageSize, searchTerm, activeFilters],
+    queryKey: queryKeys.pedidos.filtered({ pageNumber, pageSize, searchTerm, activeFilters }),
     queryFn: async () => {
       // Si hay filtros avanzados, usa el endpoint de filtros
       if (hasActiveFilters) {
@@ -91,7 +91,7 @@ const PedidosDashboard: React.FC = () => {
   useEffect(() => {
     if (pageNumber < totalPages && !searchTerm && hasActiveFilters) {
       queryClient.prefetchQuery({
-        queryKey: ['pedidos-filtrados', pageNumber + 1, pageSize, searchTerm, activeFilters],
+        queryKey: queryKeys.pedidos.filtered({ pageNumber: pageNumber + 1, pageSize, searchTerm, activeFilters }),
         queryFn: () => api.getPedidosConFiltros({
           nombreCliente: searchTerm || undefined,
           estado: activeFilters.estado,
