@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getIngredientes, createIngrediente, updateIngrediente, eliminarIngrediente } from '../api/ingredientes';
 import { Ingrediente } from '../types/ingredientes';
 import { toast } from 'react-toastify';
-
+import { queryKeys } from '../api/queryKeys';
 import { PagedResult } from '../types/pagination';
 
 export function useIngredientes(page: number = 1, pageSize: number = 20) {

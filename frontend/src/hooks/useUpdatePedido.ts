@@ -4,6 +4,7 @@ import {
   actualizarPedidoEncabezado,
 } from "../api/pedidos";
 import { PagedResult, PedidoResumen } from "../types/pedidos";
+import { queryKeys } from "../api/queryKeys";
 
 export const useUpdatePedido = () => {
   const queryClient = useQueryClient();
@@ -59,7 +60,7 @@ export const useUpdatePedido = () => {
             items: oldData.items.map((p) => {
               if (p.idPedido === pedidoActualizado.idPedido) {
                 // Actualiza solo los campos que cambiaron
-                return { 
+                return {
                   ...p,
                   ...(pedidoActualizado.fecha !== undefined && { fecha: pedidoActualizado.fecha }),
                   ...(pedidoActualizado.estado !== undefined && { estado: pedidoActualizado.estado }),
@@ -80,14 +81,14 @@ export const useUpdatePedido = () => {
     // ❌ Revierte cambios si falla
     onError: (err, pedido, context) => {
       console.error("❌ Error al actualizar pedido:", err);
-      
+
       if (context?.previousQueries) {
         // Restaura el estado anterior
         context.previousQueries.forEach(([queryKey, data]) => {
           queryClient.setQueryData(queryKey, data);
         });
       }
-      
+
       // Notifica al usuario del error
       console.warn("⚠️ No se pudo actualizar el pedido. Reintentando...");
     },
@@ -95,15 +96,15 @@ export const useUpdatePedido = () => {
     // ✅ Éxito: Refetch inmediato del backend
     onSuccess: async () => {
       console.log("✅ Pedido actualizado correctamente");
-      
+
       // Fuerza refetch inmediato desde el backend (ignora cache)
-      await queryClient.refetchQueries({ 
+      await queryClient.refetchQueries({
         queryKey: ["dashboardMetrics"],
         type: 'active'
       });
-      
+
       // También refresca pedidos
-      await queryClient.refetchQueries({ 
+      await queryClient.refetchQueries({
         queryKey: ["pedidos"],
         type: 'active'
       });

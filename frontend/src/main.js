@@ -1,0 +1,15 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { RouterProvider } from 'react-router-dom';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import { ToastContainer } from 'react-toastify';
+import { router } from '@/app/routes';
+import { queryClient } from '@/app/queryClient';
+import { ThemeProvider } from '@/config/ThemeContext';
+import { AuthProvider } from '@/contexts/AuthContext';
+import '@/index.css';
+import 'react-toastify/dist/ReactToastify.css';
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+ReactDOM.createRoot(document.getElementById('root')).render(_jsx(React.StrictMode, { children: _jsx(GoogleOAuthProvider, { clientId: googleClientId, children: _jsx(ThemeProvider, { children: _jsx(AuthProvider, { children: _jsxs(QueryClientProvider, { client: queryClient, children: [_jsx(RouterProvider, { router: router }), _jsx(ToastContainer, { position: "top-right", autoClose: 3000, hideProgressBar: false, newestOnTop: false, closeOnClick: true, rtl: false, pauseOnFocusLoss: true, draggable: true, pauseOnHover: true, theme: "light" })] }) }) }) }) }));

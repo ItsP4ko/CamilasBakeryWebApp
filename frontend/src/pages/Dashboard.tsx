@@ -3,7 +3,6 @@ import { Cake, ChefHat, Handshake, ShoppingCart } from "lucide-react"
 import { useDashboardMetrics } from "../hooks/useDashboardMetrics"
 import StatsCard from "@/components/general/StatsCard"
 import { useIngredientes } from "@/hooks/useIngredientes"
-import { getGananciaMensual } from "@/api/pedidos"
 import { formatCurrency } from "@/utils/formatters"
 
 const Dashboard: React.FC = () => {
@@ -22,10 +21,10 @@ const Dashboard: React.FC = () => {
 
   const tortasCount = dashboardData?.tortasCount ?? "0";
   const pedidosPendientes = dashboardData?.pedidosPendientes ?? "0";
-  const totalItems = ingredientesData?.length || 0; 
+  const totalItems = ingredientesData?.totalCount || 0;
   const GananciaMensual = formatCurrency(dashboardData?.gananciaMensual);
 
-  const isLoading = dashboardLoading || ingLoading; 
+  const isLoading = dashboardLoading || ingLoading;
   const error = dashboardError || ingError;
 
   return (
@@ -56,7 +55,7 @@ const Dashboard: React.FC = () => {
 
         <StatsCard
           label="Ingredientes en stock"
-          value={isLoading ? "..." : totalItems.toString()} 
+          value={isLoading ? "..." : totalItems.toString()}
           icon={ChefHat}
           iconColor="primary"
           delay={0.1}
@@ -86,7 +85,7 @@ const Dashboard: React.FC = () => {
         <p className="text-lg text-primary-900">
           Selecciona una sección en la barra lateral para comenzar.
         </p>
-        {error && ( 
+        {error && (
           <p className="text-red-500 text-sm mt-2">
             {typeof error === "string" ? error : error.message}
           </p>

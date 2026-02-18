@@ -1,4 +1,6 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AxiosError<T = any> = Parameters<Parameters<typeof axios.interceptors.response.use>[1]>[0] & { response?: { data?: T; status?: number } };
 
 const baseURL = import.meta.env.VITE_API_URL;
 
@@ -20,11 +22,11 @@ export class ApiError extends Error {
   }
 
   get isUnauthorized() { return this.status === 401; }
-  get isForbidden()    { return this.status === 403; }
-  get isNotFound()     { return this.status === 404; }
-  get isConflict()     { return this.status === 409; }
-  get isServerError()  { return this.status >= 500; }
-  get isValidation()   { return this.status === 400; }
+  get isForbidden() { return this.status === 403; }
+  get isNotFound() { return this.status === 404; }
+  get isConflict() { return this.status === 409; }
+  get isServerError() { return this.status >= 500; }
+  get isValidation() { return this.status === 400; }
 
   /**
    * Retorna el primer mensaje de error de validación si existe,

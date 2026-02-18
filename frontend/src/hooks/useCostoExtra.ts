@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createCostoExtra, getCostosExtra, updateCostoExtra, eliminarCostoExtra } from '../api/costoExtra';
 import { CostoExtra } from '../types/costoExtra';
 import { toast } from 'react-toastify';
-
+import { queryKeys } from '../api/queryKeys';
 import { PagedResult } from '../types/pagination';
 
 export function useCostoExtra(page: number = 1, pageSize: number = 20) {
