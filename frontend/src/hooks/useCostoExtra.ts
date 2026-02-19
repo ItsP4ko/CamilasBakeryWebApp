@@ -7,9 +7,9 @@ import { PagedResult } from '../types/pagination';
 
 export function useCostoExtra(page: number = 1, pageSize: number = 20) {
   return useQuery<PagedResult<CostoExtra>>({
-    queryKey: ['costosExtra', page, pageSize],
+    queryKey: [...queryKeys.costosExtras.all, 'page', page, pageSize],
     queryFn: () => getCostosExtra(page, pageSize),
-    staleTime: 60000, // 1 minuto
+    staleTime: 0, // Siempre refetch después de invalidación
     gcTime: 5 * 60 * 1000, // 5 minutos en memoria
   });
 }

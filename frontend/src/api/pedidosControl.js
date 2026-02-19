@@ -13,6 +13,7 @@ const mapAgregarExtra = (data) => ({
     IdCostoExtra: data.idCostoExtra,
     Cantidad: data.cantidad,
     Nota: data.nota,
+    PrecioVentaManual: data.precioVentaManual ?? undefined,
 });
 const mapModificarExtra = (data) => ({
     Cantidad: data.cantidad,
@@ -22,6 +23,7 @@ const mapAgregarIngredienteExtra = (data) => ({
     IdIngrediente: data.idIngrediente,
     Cantidad: data.cantidad,
     Nota: data.nota,
+    PrecioVentaManual: data.precioVentaManual ?? undefined,
 });
 const mapModificarIngredienteExtra = (data) => ({
     Cantidad: data.cantidad,

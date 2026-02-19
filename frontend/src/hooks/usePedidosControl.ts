@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import {
   agregarDetallePedido,
   modificarDetallePedido,
@@ -110,14 +110,16 @@ export const useAgregarExtra = () => {
       idCostoExtra,
       cantidad,
       nota,
+      precioVentaManual,
       pedidoId,
     }: {
       detallePedidoId: number;
       idCostoExtra: number;
       cantidad: number;
       nota?: string;
+      precioVentaManual?: number | null;
       pedidoId: number;
-    }) => agregarExtra(detallePedidoId, { idCostoExtra, cantidad, nota }),
+    }) => agregarExtra(detallePedidoId, { idCostoExtra, cantidad, nota, precioVentaManual }),
     onMutate: async () => {
       toast.success('Extra agregado');
     },
@@ -212,14 +214,16 @@ export const useAgregarIngredienteExtra = () => {
       idIngrediente,
       cantidad,
       nota,
+      precioVentaManual,
       pedidoId,
     }: {
       detallePedidoId: number;
       idIngrediente: number;
       cantidad: number;
       nota?: string;
+      precioVentaManual?: number | null;
       pedidoId: number;
-    }) => agregarIngredienteExtra(detallePedidoId, { idIngrediente, cantidad, nota }),
+    }) => agregarIngredienteExtra(detallePedidoId, { idIngrediente, cantidad, nota, precioVentaManual }),
     onMutate: async () => {
       toast.success('Ingrediente agregado');
     },

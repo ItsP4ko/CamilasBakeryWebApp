@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import { agregarDetallePedido, modificarDetallePedido, eliminarDetallePedido, agregarExtra, modificarExtra, eliminarExtra, agregarIngredienteExtra, modificarIngredienteExtra, eliminarIngredienteExtra, } from '@/api/pedidosControl';
 import { queryKeys } from '@/api/queryKeys';
 // ============================================
@@ -81,7 +81,7 @@ export const useEliminarDetallePedido = () => {
 export const useAgregarExtra = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ detallePedidoId, idCostoExtra, cantidad, nota, pedidoId, }) => agregarExtra(detallePedidoId, { idCostoExtra, cantidad, nota }),
+        mutationFn: ({ detallePedidoId, idCostoExtra, cantidad, nota, precioVentaManual, pedidoId, }) => agregarExtra(detallePedidoId, { idCostoExtra, cantidad, nota, precioVentaManual }),
         onMutate: async () => {
             toast.success('Extra agregado');
         },
@@ -152,7 +152,7 @@ export const useEliminarExtra = () => {
 export const useAgregarIngredienteExtra = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ detallePedidoId, idIngrediente, cantidad, nota, pedidoId, }) => agregarIngredienteExtra(detallePedidoId, { idIngrediente, cantidad, nota }),
+        mutationFn: ({ detallePedidoId, idIngrediente, cantidad, nota, precioVentaManual, pedidoId, }) => agregarIngredienteExtra(detallePedidoId, { idIngrediente, cantidad, nota, precioVentaManual }),
         onMutate: async () => {
             toast.success('Ingrediente agregado');
         },

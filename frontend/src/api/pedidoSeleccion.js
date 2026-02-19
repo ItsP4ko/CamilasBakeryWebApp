@@ -11,9 +11,8 @@ export const getTortasSimple = async () => {
 };
 // Obtener medidas de una torta específica 
 export const getMedidasPorTorta = async (idTorta) => {
-    const response = await api.get('/api/Tortas');
-    const tortasArray = Array.isArray(response.data) ? response.data : [];
-    const torta = tortasArray.find((t) => (t.IdTorta ?? t.idTorta) === idTorta);
+    const response = await api.get(`/api/Tortas/${idTorta}`);
+    const torta = response.data;
     if (!torta) {
         return [];
     }

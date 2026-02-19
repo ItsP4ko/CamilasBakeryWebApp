@@ -113,6 +113,7 @@ const ModificarPedido = () => {
                 idCostoExtra: extra.idCostoExtra,
                 cantidad: extra.cantidad,
                 nota: extra.nota,
+                precioVentaManual: extra.precioVentaManual ?? null,
                 pedidoId
             });
         });
@@ -127,6 +128,7 @@ const ModificarPedido = () => {
                 idIngrediente: ing.idIngrediente,
                 cantidad: ing.cantidad,
                 nota: ing.nota,
+                precioVentaManual: ing.precioVentaManual ?? null,
                 pedidoId
             });
         });

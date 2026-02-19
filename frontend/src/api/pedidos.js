@@ -204,12 +204,14 @@ export const crearPedido = async (pedido) => {
             Extras: (detalle.extras || []).map(extra => ({
                 IdCostoExtra: extra.idCostoExtra,
                 Nota: extra.nota || '',
-                Cantidad: extra.cantidad
+                Cantidad: extra.cantidad,
+                PrecioVentaManual: extra.precioVentaManual ?? undefined
             })),
             IngredientesExtras: (detalle.ingredientesExtras || []).map(ing => ({
                 IdIngrediente: ing.idIngrediente,
                 Nota: ing.nota || '',
-                Cantidad: ing.cantidad
+                Cantidad: ing.cantidad,
+                PrecioVentaManual: ing.precioVentaManual ?? undefined
             }))
         }))
     };

@@ -3,7 +3,7 @@ import { Plus, Trash2, Pencil } from 'lucide-react';
 import PopupConfirm from '@/components/general/PopupConfirm';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createTorta, deleteTorta, updateTorta } from '@/api/tortas';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import { Torta } from '@/types/tortas';
 
 interface BotonesGestionTortaProps {

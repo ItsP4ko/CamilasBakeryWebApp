@@ -4,9 +4,9 @@ import { toast } from 'react-toastify';
 import { queryKeys } from '../api/queryKeys';
 export function useCostoExtra(page = 1, pageSize = 20) {
     return useQuery({
-        queryKey: ['costosExtra', page, pageSize],
+        queryKey: [...queryKeys.costosExtras.all, 'page', page, pageSize],
         queryFn: () => getCostosExtra(page, pageSize),
-        staleTime: 60000, // 1 minuto
+        staleTime: 0, // Siempre refetch después de invalidación
         gcTime: 5 * 60 * 1000, // 5 minutos en memoria
     });
 }

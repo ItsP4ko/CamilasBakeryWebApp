@@ -171,6 +171,7 @@ const ModificarPedido: React.FC = () => {
         idCostoExtra: extra.idCostoExtra,
         cantidad: extra.cantidad,
         nota: extra.nota,
+        precioVentaManual: extra.precioVentaManual ?? null,
         pedidoId
       });
     });
@@ -187,6 +188,7 @@ const ModificarPedido: React.FC = () => {
         idIngrediente: ing.idIngrediente,
         cantidad: ing.cantidad,
         nota: ing.nota,
+        precioVentaManual: ing.precioVentaManual ?? null,
         pedidoId
       });
     });

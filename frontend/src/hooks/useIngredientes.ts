@@ -7,9 +7,9 @@ import { PagedResult } from '../types/pagination';
 
 export function useIngredientes(page: number = 1, pageSize: number = 20) {
   return useQuery<PagedResult<Ingrediente>>({
-    queryKey: ['ingredientes', page, pageSize],
+    queryKey: [...queryKeys.ingredientes.all, 'page', page, pageSize],
     queryFn: () => getIngredientes(page, pageSize),
-    staleTime: 60000, // 1 minuto - considera los datos "frescos"
+    staleTime: 0, // Siempre refetch después de invalidación
     gcTime: 5 * 60 * 1000, // 5 minutos en memoria
   });
 }

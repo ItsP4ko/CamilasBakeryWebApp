@@ -30,7 +30,6 @@ export default defineConfig({
           'vendor-ui': [
             'framer-motion',
             'react-select',
-            'react-hot-toast',
             'react-toastify',
             'lucide-react',
           ],

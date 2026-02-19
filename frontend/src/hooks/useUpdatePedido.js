@@ -82,10 +82,10 @@ export const useUpdatePedido = () => {
                 queryKey: ["dashboardMetrics"],
                 type: 'active'
             });
-            // También refresca pedidos
-            await queryClient.refetchQueries({
-                queryKey: ["pedidos"],
-                type: 'active'
+            // Invalida la cache de pedidos para asegurar que la lista se actualice
+            // (incluso si no está activa ahora, se actualizará al volver)
+            await queryClient.invalidateQueries({
+                queryKey: queryKeys.pedidos.all
             });
         },
         // 🔄 No hace nada adicional en settled

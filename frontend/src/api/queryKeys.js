@@ -31,6 +31,7 @@ export const queryKeys = {
         pendientes: () => [...queryKeys.pedidos.all, 'pendientes'],
         byCliente: (idCliente) => [...queryKeys.pedidos.all, 'cliente', idCliente],
         byFechaRange: (fechaInicio, fechaFin) => [...queryKeys.pedidos.all, 'fecha-range', { fechaInicio, fechaFin }],
+        filtered: (filters) => [...queryKeys.pedidos.all, 'filtered', filters],
     },
     // ─── Clientes ────────────────────────────────────────────────────────────
     clientes: {

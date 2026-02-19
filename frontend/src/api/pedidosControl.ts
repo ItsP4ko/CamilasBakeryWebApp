@@ -17,6 +17,7 @@ interface AgregarExtraDTO {
   IdCostoExtra: number;
   Cantidad: number;
   Nota?: string;
+  PrecioVentaManual?: number | null;
 }
 
 interface ModificarExtraDTO {
@@ -28,6 +29,7 @@ interface AgregarIngredienteExtraDTO {
   IdIngrediente: number;
   Cantidad: number;
   Nota?: string;
+  PrecioVentaManual?: number | null;
 }
 
 interface ModificarIngredienteExtraDTO {
@@ -48,10 +50,11 @@ const mapModificarDetalle = (data: { cantidad: number }): ModificarDetalleDTO =>
   Cantidad: data.cantidad,
 });
 
-const mapAgregarExtra = (data: { idCostoExtra: number; cantidad: number; nota?: string }): AgregarExtraDTO => ({
+const mapAgregarExtra = (data: { idCostoExtra: number; cantidad: number; nota?: string; precioVentaManual?: number | null }): AgregarExtraDTO => ({
   IdCostoExtra: data.idCostoExtra,
   Cantidad: data.cantidad,
   Nota: data.nota,
+  PrecioVentaManual: data.precioVentaManual ?? undefined,
 });
 
 const mapModificarExtra = (data: { cantidad?: number; nota?: string }): ModificarExtraDTO => ({
@@ -59,10 +62,11 @@ const mapModificarExtra = (data: { cantidad?: number; nota?: string }): Modifica
   Nota: data.nota,
 });
 
-const mapAgregarIngredienteExtra = (data: { idIngrediente: number; cantidad: number; nota?: string }): AgregarIngredienteExtraDTO => ({
+const mapAgregarIngredienteExtra = (data: { idIngrediente: number; cantidad: number; nota?: string; precioVentaManual?: number | null }): AgregarIngredienteExtraDTO => ({
   IdIngrediente: data.idIngrediente,
   Cantidad: data.cantidad,
   Nota: data.nota,
+  PrecioVentaManual: data.precioVentaManual ?? undefined,
 });
 
 const mapModificarIngredienteExtra = (data: { cantidad?: number; nota?: string }): ModificarIngredienteExtraDTO => ({
@@ -121,7 +125,7 @@ export const eliminarDetallePedido = async (detallePedidoId: number) => {
  */
 export const agregarExtra = async (
   detallePedidoId: number,
-  data: { idCostoExtra: number; cantidad: number; nota?: string }
+  data: { idCostoExtra: number; cantidad: number; nota?: string; precioVentaManual?: number | null }
 ) => {
   const response = await httpClient.post(
     `/api/PedidosControl/detalle/${detallePedidoId}/extras`,
@@ -160,7 +164,7 @@ export const eliminarExtra = async (extraId: number) => {
  */
 export const agregarIngredienteExtra = async (
   detallePedidoId: number,
-  data: { idIngrediente: number; cantidad: number; nota?: string }
+  data: { idIngrediente: number; cantidad: number; nota?: string; precioVentaManual?: number | null }
 ) => {
   const response = await httpClient.post(
     `/api/PedidosControl/detalle/${detallePedidoId}/ingredientes-extras`,

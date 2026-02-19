@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, Plus, Edit2, Trash2, Package, DollarSign, Save, RotateCcw } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import { getMedida, addIngredienteToMedida, updateIngredienteMedida, removeIngredienteFromMedida, addCostoExtraToMedida, removeCostoExtraFromMedida, updatePrecioVentaMedida, } from '@/api/tortas';
 import { useCostoExtra } from '@/hooks/useCostoExtra';
 import PopupAgregarIngredienteMedida from '@/components/tortas/PopupAgregarIngredienteMedida';
