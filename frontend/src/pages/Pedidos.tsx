@@ -177,7 +177,7 @@ const PedidosDashboard: React.FC = () => {
         />
         <StatsCard
           label="Reportes y estadisticas"
-          value={"Vistar"}
+          value={"Visitar"}
           icon={ArrowUpLeft}
           iconColor="primary"
           delay={0}

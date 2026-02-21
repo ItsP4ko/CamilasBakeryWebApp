@@ -4,47 +4,49 @@ import { ActualizarPedidoDTO, CrearPedidoDTO, PagedResult, Pedido, PedidoResumen
 
 // Helper function para mapear datos del backend
 const mapPedidoFromBackend = (data: any): Pedido => ({
-  idPedido: data.IdPedido,
-  idCliente: data.IdCliente,
-  nombreCliente: data.NombreCliente,
-  telefonoCliente: data.TelefonoCliente,
-  fecha: data.Fecha,
-  total: data.Total,
-  ganancia: data.Ganancia,
-  ingredientes: data.Ingredientes,
-  costoExtras: data.CostoExtras,
-  nota: data.Nota || '',
-  precioExtra: data.PrecioExtra,
-  metodoDePago: data.MetodoDePago,
-  estado: data.Estado,
-  detallePedidos: (data.DetallePedidos || []).map((detalle: any) => ({
-    idDetallePedido: detalle.IdDetallePedido,
-    idPedido: detalle.IdPedido,
-    idMedida: detalle.IdMedida,
-    cantidad: detalle.Cantidad,
-    nombreTorta: detalle.NombreTorta,
-    tamanoMedida: detalle.TamanoMedida,
-    totalProducto: detalle.TotalProducto,
-    precioMomentoMedida: detalle.PrecioMomentoMedida,
-    extras: (detalle.Extras || []).map((extra: any) => ({
-      idExtras: extra.IdExtras,
-      idDetallePedido: extra.IdDetallePedido,
-      idCostoExtra: extra.IdCostoExtra,
-      nombreCostoExtra: extra.NombreCostoExtra,
-      nota: extra.Nota || '',
-      precioMomento: extra.PrecioMomento,
-      cantidad: extra.Cantidad,
-      precioUnitario: extra.PrecioUnitario,
+  idPedido: data.IdPedido || data.idPedido,
+  idCliente: data.IdCliente || data.idCliente,
+  nombreCliente: data.NombreCliente || data.nombreCliente,
+  telefonoCliente: data.TelefonoCliente || data.telefonoCliente,
+  fecha: data.Fecha || data.fecha,
+  total: data.Total || data.total,
+  ganancia: data.Ganancia || data.ganancia,
+  ingredientes: data.Ingredientes || data.ingredientes,
+  costoExtras: data.CostoExtras || data.costoExtras,
+  nota: data.Nota || data.nota || '',
+  precioExtra: data.PrecioExtra || data.precioExtra,
+  metodoDePago: data.MetodoDePago || data.metodoDePago,
+  estado: data.Estado || data.estado,
+  detallePedidos: (data.DetallePedidos || data.detallePedidos || []).map((detalle: any) => ({
+    idDetallePedido: detalle.IdDetallePedido || detalle.idDetallePedido,
+    idPedido: detalle.IdPedido || detalle.idPedido,
+    idMedida: detalle.IdMedida || detalle.idMedida,
+    cantidad: detalle.Cantidad || detalle.cantidad,
+    nombreTorta: detalle.NombreTorta || detalle.nombreTorta,
+    tamanoMedida: detalle.TamanoMedida || detalle.tamanoMedida,
+    totalProducto: detalle.TotalProducto || detalle.totalProducto,
+    precioMomentoMedida: detalle.PrecioMomentoMedida || detalle.precioMomentoMedida,
+    extras: (detalle.Extras || detalle.extras || []).map((extra: any) => ({
+      idExtras: extra.IdExtras || extra.idExtras,
+      idDetallePedido: extra.IdDetallePedido || extra.idDetallePedido,
+      idCostoExtra: extra.IdCostoExtra || extra.idCostoExtra,
+      nombreCostoExtra: extra.NombreCostoExtra || extra.nombreCostoExtra,
+      nota: extra.Nota || extra.nota || '',
+      precioMomento: extra.PrecioMomento || extra.precioMomento,
+      cantidad: extra.Cantidad || extra.cantidad,
+      precioUnitario: extra.PrecioUnitario || extra.precioUnitario,
+      precioVentaManual: extra.PrecioVentaManual ?? extra.precioVentaManual ?? undefined
     })),
-    ingredientesExtras: (detalle.IngredientesExtras || []).map((ing: any) => ({
-      idIngredienteExtra: ing.IdIngredienteExtra,
-      idDetallePedido: ing.IdDetallePedido,
-      idIngrediente: ing.IdIngrediente,
-      nombreIngrediente: ing.NombreIngrediente,
-      nota: ing.Nota || '',
-      precioMomento: ing.PrecioMomento,
-      cantidad: ing.Cantidad,
-      unidadCompra: ing.UnidadCompra,
+    ingredientesExtras: (detalle.IngredientesExtras || detalle.ingredientesExtras || []).map((ing: any) => ({
+      idIngredienteExtra: ing.IdIngredienteExtra || ing.idIngredienteExtra,
+      idDetallePedido: ing.IdDetallePedido || ing.idDetallePedido,
+      idIngrediente: ing.IdIngrediente || ing.idIngrediente,
+      nombreIngrediente: ing.NombreIngrediente || ing.nombreIngrediente,
+      nota: ing.Nota || ing.nota || '',
+      precioMomento: ing.PrecioMomento || ing.precioMomento,
+      cantidad: ing.Cantidad || ing.cantidad,
+      unidadCompra: ing.UnidadCompra || ing.unidadCompra,
+      precioVentaManual: ing.PrecioVentaManual ?? ing.precioVentaManual ?? undefined
     })),
   })),
 });
@@ -184,8 +186,8 @@ export const getPedidosPendientesHoy = async (): Promise<number> => {
     const pedidos = response.data.map(mapPedidoFromBackend);
 
     const count = pedidos.filter(p =>
-      p.estado.toLowerCase() !== 'entregado' &&
-      p.estado.toLowerCase() !== 'cancelado'
+      p.estado?.toLowerCase() !== 'entregado' &&
+      p.estado?.toLowerCase() !== 'cancelado'
     ).length;
 
 
@@ -302,8 +304,14 @@ export const getGananciaMensual = async (): Promise<number> => {
     const pedidosArray = Array.isArray(response.data) ? response.data : [];
 
     const totalGanancia = pedidosArray
-      .filter((pedido: any) => pedido.Estado?.toLowerCase() === "entregado")
-      .reduce((acc: number, pedido: any) => acc + (pedido.Ganancia ?? 0), 0);
+      .filter((pedido: any) => {
+        const estado = pedido.estado || pedido.Estado;
+        return estado?.toLowerCase() === "entregado";
+      })
+      .reduce((acc: number, pedido: any) => {
+        const ganancia = pedido.ganancia ?? pedido.Ganancia ?? 0;
+        return acc + ganancia;
+      }, 0);
 
     return totalGanancia;
   } catch (error) {
@@ -329,7 +337,10 @@ export const getPedidosEntregadosMensual = async (): Promise<number> => {
     const pedidosArray = Array.isArray(response.data) ? response.data : [];
 
     const cantidadEntregados = pedidosArray
-      .filter((pedido: any) => pedido.Estado?.toLowerCase() === "entregado")
+      .filter((pedido: any) => {
+        const estado = pedido.estado || pedido.Estado;
+        return estado?.toLowerCase() === "entregado";
+      })
       .length;
 
     return cantidadEntregados;
