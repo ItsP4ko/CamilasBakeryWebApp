@@ -24,9 +24,10 @@ export function useCreateCostoExtra() {
     },
     onSuccess: () => {
       toast.success('Costo extra creado exitosamente');
-      // Invalidate all queries to refresh the list
-      queryClient.invalidateQueries({ queryKey: queryKeys.costosExtras.all });
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.costosExtras.all });
+    }
   });
 }
 
@@ -40,8 +41,10 @@ export function useUpdateCostoExtra() {
     },
     onSuccess: () => {
       toast.success('Costo extra actualizado exitosamente');
-      queryClient.invalidateQueries({ queryKey: queryKeys.costosExtras.all });
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.costosExtras.all });
+    }
   });
 }
 
@@ -55,7 +58,9 @@ export function useDeleteCostoExtra() {
     },
     onSuccess: () => {
       toast.success('Costo extra eliminado exitosamente');
-      queryClient.invalidateQueries({ queryKey: queryKeys.costosExtras.all });
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.costosExtras.all });
+    }
   });
 }

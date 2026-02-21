@@ -24,9 +24,10 @@ export function useCreateIngrediente() {
     },
     onSuccess: () => {
       toast.success('Ingrediente creado exitosamente');
-      // Invalidate all ingredients queries to refresh the list
-      queryClient.invalidateQueries({ queryKey: queryKeys.ingredientes.all });
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.ingredientes.all });
+    }
   });
 }
 
@@ -40,8 +41,10 @@ export function useUpdateIngrediente() {
     },
     onSuccess: () => {
       toast.success('Ingrediente actualizado exitosamente');
-      queryClient.invalidateQueries({ queryKey: queryKeys.ingredientes.all });
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.ingredientes.all });
+    }
   });
 }
 
@@ -55,7 +58,9 @@ export function useDeleteIngrediente() {
     },
     onSuccess: () => {
       toast.success('Ingrediente eliminado exitosamente');
-      queryClient.invalidateQueries({ queryKey: queryKeys.ingredientes.all });
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.ingredientes.all });
+    }
   });
 }

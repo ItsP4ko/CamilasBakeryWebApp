@@ -32,14 +32,12 @@ const CostoExtra: React.FC = () => {
   const handleCreate = (formData: any) => {
     console.log("Datos enviados al backend:", formData);
 
-    // ✅ Cerrar el popup INMEDIATAMENTE (optimistic UI)
-    setPopupCreateOpen(false);
-
-    // ⏳ La mutación ocurre en segundo plano con optimistic update
     mutate(formData, {
+      onSuccess: () => {
+        setPopupCreateOpen(false);
+      },
       onError: (err: any) => {
         console.error("Error al crear costo extra:");
-        // El rollback automático ya está manejado en el hook
       },
     });
   };
@@ -48,17 +46,15 @@ const CostoExtra: React.FC = () => {
   const handleUpdate = (formData: any) => {
     if (!selectedItem) return;
 
-    // ✅ Cerrar el popup INMEDIATAMENTE (optimistic UI)
-    setPopupEditOpen(false);
-    setSelectedItem(null);
-
-    // ⏳ La mutación ocurre en segundo plano con optimistic update
     updateMutate(
       { id: selectedItem.idCostoExtra, data: formData },
       {
+        onSuccess: () => {
+          setPopupEditOpen(false);
+          setSelectedItem(null);
+        },
         onError: (err: any) => {
           console.error("Error al actualizar costo extra:");
-          // El rollback automático ya está manejado en el hook
         },
       }
     );
@@ -73,16 +69,15 @@ const CostoExtra: React.FC = () => {
   const confirmDelete = () => {
     if (!itemToDelete) return;
 
-    // ✅ Cerrar el popup INMEDIATAMENTE (optimistic UI)
-    setPopupConfirmOpen(false);
     const itemId = itemToDelete.id;
-    setItemToDelete(null);
 
-    // ⏳ La mutación ocurre en segundo plano con optimistic update
     deleteMutate(itemId, {
+      onSuccess: () => {
+        setPopupConfirmOpen(false);
+        setItemToDelete(null);
+      },
       onError: (err: any) => {
         console.error("Error al eliminar costo extra:", err.response?.data || err);
-        // El rollback automático ya está manejado en el hook
       },
     });
   };

@@ -203,6 +203,23 @@ const PopupAgregarIngredientesExtras: React.FC<PopupAgregarIngredientesExtrasPro
                   />
                 </div>
 
+                {/* Precio Manual */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Precio Manual (Sugerido: ${precioSugerido.toLocaleString('es-AR')})
+                  </label>
+                  <input
+                    type="number"
+                    value={precioManual}
+                    onChange={(e) => setPrecioManual(e.target.value)}
+                    placeholder={`$${precioSugerido.toFixed(2)}`}
+                    className="w-full px-4 py-2.5 bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-500 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Dejar vacío para usar precio calculado automáticamente.
+                  </p>
+                </div>
+
                 {/* Botón agregar */}
                 <button
                   onClick={handleAgregarIngrediente}
